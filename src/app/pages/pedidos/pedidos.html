@@ -1,0 +1,233 @@
+<div class="page-header">
+
+  <div>
+
+    <h1>
+      Gestión de Pedidos
+    </h1>
+
+    <p>
+      Administra y revisa los pedidos realizados por los clientes.
+    </p>
+
+  </div>
+
+
+  <button
+    class="refresh-button"
+    type="button"
+    (click)="actualizarPedidos()"
+  >
+    🔄 Actualizar
+  </button>
+
+</div>
+
+
+<!-- MENSAJE DE ACTUALIZACIÓN -->
+
+<div
+  class="update-message"
+  *ngIf="mensajeActualizacion"
+>
+  ✓ Pedidos actualizados correctamente.
+</div>
+
+
+<!-- FILTROS -->
+
+<div class="filters">
+
+  <button
+    class="filter"
+    [class.active]="filtroActual === 'Todos'"
+    (click)="cambiarFiltro('Todos')"
+  >
+    Todos
+  </button>
+
+
+  <button
+    class="filter"
+    [class.active]="filtroActual === 'Pago en revisión'"
+    (click)="cambiarFiltro('Pago en revisión')"
+  >
+    Pago en revisión
+  </button>
+
+
+  <button
+    class="filter"
+    [class.active]="filtroActual === 'Aprobado'"
+    (click)="cambiarFiltro('Aprobado')"
+  >
+    Aprobados
+  </button>
+
+
+  <button
+    class="filter"
+    [class.active]="filtroActual === 'En preparación'"
+    (click)="cambiarFiltro('En preparación')"
+  >
+    En preparación
+  </button>
+
+
+  <button
+    class="filter"
+    [class.active]="filtroActual === 'Entregado'"
+    (click)="cambiarFiltro('Entregado')"
+  >
+    Entregados
+  </button>
+
+</div>
+
+
+<!-- TABLA DE PEDIDOS -->
+
+<div class="orders-card">
+
+  <div class="orders-header">
+
+    <h2>
+      Pedidos
+    </h2>
+
+
+    <div class="search">
+
+      🔍
+
+      <input
+        type="text"
+        placeholder="Buscar pedido o cliente..."
+        (input)="buscar($event)"
+      >
+
+    </div>
+
+  </div>
+
+
+  <div class="table-container">
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>
+            Pedido
+          </th>
+
+          <th>
+            Cliente
+          </th>
+
+          <th>
+            Fecha
+          </th>
+
+          <th>
+            Total
+          </th>
+
+          <th>
+            Estado
+          </th>
+
+          <th>
+            Acciones
+          </th>
+
+        </tr>
+
+      </thead>
+
+
+      <tbody>
+
+        <tr
+          *ngFor="let pedido of pedidosFiltrados"
+        >
+
+          <td>
+
+            <strong>
+              #{{ pedido.id }}
+            </strong>
+
+          </td>
+
+
+          <td>
+            {{ pedido.cliente }}
+          </td>
+
+
+          <td>
+            {{ pedido.fecha }}
+          </td>
+
+
+          <td>
+            ${{ pedido.total.toLocaleString('es-CL') }}
+          </td>
+
+
+          <td>
+
+            <span
+              class="status"
+              [class.pending]="pedido.estado === 'Pago en revisión'"
+              [class.approved]="pedido.estado === 'Aprobado'"
+              [class.preparation]="pedido.estado === 'En preparación'"
+              [class.delivered]="pedido.estado === 'Entregado'"
+              [class.rejected]="pedido.estado === 'Rechazado'"
+            >
+              {{ pedido.estado }}
+            </span>
+
+          </td>
+
+
+          <td>
+
+            <button
+              class="action-button"
+              type="button"
+              (click)="verPedido(pedido.id)"
+            >
+              👁 Ver
+            </button>
+
+          </td>
+
+        </tr>
+
+
+        <!-- SIN RESULTADOS -->
+
+        <tr
+          *ngIf="pedidosFiltrados.length === 0"
+        >
+
+          <td
+            colspan="6"
+            class="no-results"
+          >
+            No se encontraron pedidos.
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>

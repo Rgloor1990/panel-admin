@@ -1,0 +1,42 @@
+<div class="app-container">
+
+  <aside class="sidebar">
+
+    <div class="logo">
+      <h2>Mapuescuela</h2>
+      <span>Panel administrativo</span>
+    </div>
+
+    <nav>
+
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="menu-item">
+        🏠 Dashboard
+      </a>
+
+      <a routerLink="/productos" routerLinkActive="active" class="menu-item">
+        📦 Productos
+      </a>
+
+      <a routerLink="/pedidos" routerLinkActive="active" class="menu-item">
+        🛒 Pedidos
+      </a>
+
+      <a routerLink="/comprobantes" routerLinkActive="active" class="menu-item">
+        🧾 Comprobantes
+      </a>
+
+      <a routerLink="/entregas" routerLinkActive="active" class="menu-item">
+        🚚 Entregas
+      </a>
+
+    </nav>
+
+  </aside>
+
+  <main class="main-content">
+
+    <router-outlet></router-outlet>
+
+  </main>
+
+</div>

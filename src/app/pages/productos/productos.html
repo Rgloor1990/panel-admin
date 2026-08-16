@@ -1,0 +1,487 @@
+<div class="page-header">
+
+  <div>
+    <h1>Gestión de Productos</h1>
+
+    <p>
+      Administra los productos disponibles en Mapuescuela.
+    </p>
+  </div>
+
+
+  <button
+    class="add-button"
+    type="button"
+    (click)="abrirFormulario()"
+  >
+    ＋ Agregar producto
+  </button>
+
+</div>
+
+
+<!-- ================================
+     BÚSQUEDA
+     ================================ -->
+
+<section class="toolbar">
+
+  <div class="search-box">
+
+    <span class="search-icon">
+      🔍
+    </span>
+
+    <input
+      type="text"
+      [(ngModel)]="terminoBusqueda"
+      placeholder="Buscar producto o categoría..."
+    >
+
+  </div>
+
+
+  <button
+    *ngIf="terminoBusqueda"
+    class="clear-button"
+    type="button"
+    (click)="limpiarBusqueda()"
+  >
+    Limpiar
+  </button>
+
+</section>
+
+
+
+<!-- ================================
+     LISTADO DE PRODUCTOS
+     ================================ -->
+
+<section class="products-card">
+
+  <div class="card-header">
+
+    <div>
+
+      <h2>
+        Productos
+      </h2>
+
+      <p>
+        {{ productosFiltrados.length }} productos encontrados
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <div class="table-container">
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>
+            Producto
+          </th>
+
+          <th>
+            Categoría
+          </th>
+
+          <th>
+            Precio
+          </th>
+
+          <th>
+            Stock
+          </th>
+
+          <th>
+            Estado
+          </th>
+
+          <th>
+            Acciones
+          </th>
+
+        </tr>
+
+      </thead>
+
+
+      <tbody>
+
+        <tr
+          *ngFor="let producto of productosFiltrados"
+        >
+
+          <td>
+
+            <div class="product-name">
+
+              <div class="product-icon">
+                📦
+              </div>
+
+              <strong>
+                {{ producto.nombre }}
+              </strong>
+
+            </div>
+
+          </td>
+
+
+          <td>
+            {{ producto.categoria }}
+          </td>
+
+
+          <td class="price">
+
+            ${{ producto.precio.toLocaleString('es-CL') }}
+
+          </td>
+
+
+          <td>
+
+            <span
+              class="stock"
+              [class.stock-low]="producto.stock > 0 && producto.stock <= 5"
+              [class.stock-empty]="producto.stock === 0"
+            >
+              {{ producto.stock }}
+            </span>
+
+          </td>
+
+
+          <td>
+
+            <span
+              class="status"
+              [class.available]="producto.estado === 'Disponible'"
+              [class.low]="producto.estado === 'Stock bajo'"
+              [class.empty]="producto.estado === 'Sin stock'"
+            >
+
+              {{ producto.estado }}
+
+            </span>
+
+          </td>
+
+
+          <td>
+
+            <div class="actions">
+
+              <!-- EDITAR -->
+
+              <button
+                class="action-button edit"
+                type="button"
+                title="Editar producto"
+                (click)="editarProducto(producto)"
+              >
+                ✏️
+              </button>
+
+
+              <!-- ELIMINAR -->
+
+              <button
+                class="action-button delete"
+                type="button"
+                title="Eliminar producto"
+                (click)="confirmarEliminar(producto)"
+              >
+                🗑️
+              </button>
+
+            </div>
+
+          </td>
+
+        </tr>
+
+
+        <!-- ================================
+             SIN RESULTADOS
+             ================================ -->
+
+        <tr
+          *ngIf="productosFiltrados.length === 0"
+        >
+
+          <td
+            colspan="6"
+            class="no-results"
+          >
+
+            <div class="no-results-icon">
+              🔍
+            </div>
+
+            <strong>
+              No se encontraron productos
+            </strong>
+
+            <p>
+              Intenta buscar con otro nombre o categoría.
+            </p>
+
+            <button
+              class="clear-button"
+              type="button"
+              (click)="limpiarBusqueda()"
+            >
+              Mostrar todos los productos
+            </button>
+
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</section>
+
+
+
+<!-- ================================
+     MODAL AGREGAR / EDITAR
+     ================================ -->
+
+<div
+  class="product-overlay"
+  *ngIf="mostrarFormulario"
+  (click)="cerrarFormulario()"
+>
+
+
+  <div
+    class="product-modal"
+    (click)="$event.stopPropagation()"
+  >
+
+
+    <div class="product-modal-header">
+
+      <h2>
+
+        {{ modoEdicion
+          ? 'Editar producto'
+          : 'Agregar producto'
+        }}
+
+      </h2>
+
+
+      <button
+        class="close-product"
+        type="button"
+        (click)="cerrarFormulario()"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+
+    <div class="product-modal-content">
+
+
+      <div class="form-group">
+
+        <label for="nombreProducto">
+          Nombre del producto
+        </label>
+
+        <input
+          id="nombreProducto"
+          type="text"
+          [(ngModel)]="nuevoProducto.nombre"
+          placeholder="Ej: Mochila escolar"
+        >
+
+      </div>
+
+
+
+      <div class="form-group">
+
+        <label for="categoriaProducto">
+          Categoría
+        </label>
+
+        <input
+          id="categoriaProducto"
+          type="text"
+          [(ngModel)]="nuevoProducto.categoria"
+          placeholder="Ej: Útiles escolares"
+        >
+
+      </div>
+
+
+
+      <div class="form-row">
+
+        <div class="form-group">
+
+          <label for="precioProducto">
+            Precio
+          </label>
+
+          <input
+            id="precioProducto"
+            type="number"
+            min="1"
+            [(ngModel)]="nuevoProducto.precio"
+            placeholder="Ej: 15000"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="stockProducto">
+            Stock
+          </label>
+
+          <input
+            id="stockProducto"
+            type="number"
+            min="0"
+            [(ngModel)]="nuevoProducto.stock"
+            placeholder="Ej: 10"
+          >
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <div class="product-modal-footer">
+
+      <button
+        class="cancel-button"
+        type="button"
+        (click)="cerrarFormulario()"
+      >
+        Cancelar
+      </button>
+
+
+      <button
+        class="save-product-button"
+        type="button"
+        (click)="guardarProducto()"
+      >
+
+        ✓
+
+        {{ modoEdicion
+          ? 'Guardar cambios'
+          : 'Guardar producto'
+        }}
+
+      </button>
+
+    </div>
+
+
+  </div>
+
+</div>
+
+
+
+<!-- ================================
+     MODAL CONFIRMAR ELIMINACIÓN
+     ================================ -->
+
+<div
+  class="delete-overlay"
+  *ngIf="mostrarConfirmacionEliminar"
+  (click)="cancelarEliminar()"
+>
+
+
+  <div
+    class="delete-modal"
+    (click)="$event.stopPropagation()"
+  >
+
+
+    <!-- ICONO -->
+
+    <div class="delete-icon">
+      🗑️
+    </div>
+
+
+    <!-- TÍTULO -->
+
+    <h2>
+      Eliminar producto
+    </h2>
+
+
+    <!-- MENSAJE -->
+
+    <p>
+      ¿Estás seguro de que deseas eliminar
+      <strong>
+        {{ productoAEliminar?.nombre }}
+      </strong>?
+    </p>
+
+    <small>
+      Esta acción eliminará el producto de la lista.
+    </small>
+
+
+    <!-- BOTONES -->
+
+    <div class="delete-actions">
+
+      <button
+        class="cancel-delete"
+        type="button"
+        (click)="cancelarEliminar()"
+      >
+        Cancelar
+      </button>
+
+
+      <button
+        class="confirm-delete"
+        type="button"
+        (click)="eliminarProducto()"
+      >
+        🗑️ Eliminar producto
+      </button>
+
+    </div>
+
+
+  </div>
+
+</div>

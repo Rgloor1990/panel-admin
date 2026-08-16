@@ -1,0 +1,489 @@
+<div class="page-header">
+
+  <div>
+
+    <a
+      routerLink="/pedidos"
+      class="back-link"
+    >
+      ← Volver a pedidos
+    </a>
+
+    <h1>
+      Detalle del Pedido #{{ pedido?.id }}
+    </h1>
+
+    <p>
+      Información y gestión del pedido seleccionado.
+    </p>
+
+  </div>
+
+
+  <span
+    class="status pending"
+    *ngIf="pedido"
+  >
+    {{ pedido.estado }}
+  </span>
+
+</div>
+
+
+
+<!-- INFORMACIÓN -->
+
+<div
+  class="detail-grid"
+  *ngIf="pedido"
+>
+
+
+  <!-- CLIENTE -->
+
+  <section class="detail-card">
+
+    <h2>
+      Información del cliente
+    </h2>
+
+
+    <div class="info-row">
+
+      <span>
+        Nombre
+      </span>
+
+      <strong>
+        {{ pedido.cliente }}
+      </strong>
+
+    </div>
+
+
+    <div class="info-row">
+
+      <span>
+        Correo
+      </span>
+
+      <strong>
+        {{ pedido.correo }}
+      </strong>
+
+    </div>
+
+
+    <div class="info-row">
+
+      <span>
+        Teléfono
+      </span>
+
+      <strong>
+        {{ pedido.telefono }}
+      </strong>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- PEDIDO -->
+
+  <section class="detail-card">
+
+    <h2>
+      Información del pedido
+    </h2>
+
+
+    <div class="info-row">
+
+      <span>
+        Número
+      </span>
+
+      <strong>
+        #{{ pedido.id }}
+      </strong>
+
+    </div>
+
+
+    <div class="info-row">
+
+      <span>
+        Fecha
+      </span>
+
+      <strong>
+        {{ pedido.fecha }}
+      </strong>
+
+    </div>
+
+
+    <div class="info-row">
+
+      <span>
+        Estado
+      </span>
+
+      <strong>
+        {{ pedido.estado }}
+      </strong>
+
+    </div>
+
+  </section>
+
+</div>
+
+
+
+<!-- PRODUCTOS -->
+
+<section
+  class="detail-card products-card"
+  *ngIf="pedido"
+>
+
+  <h2>
+    Productos del pedido
+  </h2>
+
+
+  <table>
+
+    <thead>
+
+      <tr>
+
+        <th>
+          Producto
+        </th>
+
+        <th>
+          Cantidad
+        </th>
+
+        <th>
+          Precio
+        </th>
+
+        <th>
+          Subtotal
+        </th>
+
+      </tr>
+
+    </thead>
+
+
+    <tbody>
+
+      <tr
+        *ngFor="let producto of pedido.productos"
+      >
+
+        <td>
+          {{ producto.nombre }}
+        </td>
+
+        <td>
+          {{ producto.cantidad }}
+        </td>
+
+        <td>
+          ${{ producto.precio.toLocaleString('es-CL') }}
+        </td>
+
+        <td>
+          ${{ producto.subtotal.toLocaleString('es-CL') }}
+        </td>
+
+      </tr>
+
+    </tbody>
+
+  </table>
+
+
+  <div class="total">
+
+    <span>
+      Total del pedido
+    </span>
+
+    <strong>
+      ${{ pedido.total.toLocaleString('es-CL') }}
+    </strong>
+
+  </div>
+
+</section>
+
+
+
+<!-- COMPROBANTE -->
+
+<section
+  class="detail-card"
+  *ngIf="pedido"
+>
+
+  <h2>
+    Comprobante de pago
+  </h2>
+
+
+  <div class="receipt">
+
+    <div>
+
+      <span>
+        Estado del comprobante
+      </span>
+
+
+      <strong class="status pending">
+        {{ pedido.comprobante }}
+      </strong>
+
+    </div>
+
+
+    <button
+      class="view-receipt"
+      type="button"
+      (click)="abrirComprobante()"
+    >
+      👁 Ver comprobante
+    </button>
+
+  </div>
+
+</section>
+
+
+
+<!-- MODAL DEL COMPROBANTE -->
+
+<div
+  class="receipt-overlay"
+  *ngIf="mostrarComprobante"
+  (click)="cerrarComprobante()"
+>
+
+
+  <div
+    class="receipt-modal"
+    (click)="$event.stopPropagation()"
+  >
+
+    <div class="receipt-modal-header">
+
+      <h2>
+        Comprobante de pago
+      </h2>
+
+
+      <button
+        class="close-receipt"
+        type="button"
+        (click)="cerrarComprobante()"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="receipt-content">
+
+      <div class="receipt-logo">
+        MAPUESCUELA
+      </div>
+
+
+      <h3>
+        Comprobante de transferencia
+      </h3>
+
+
+      <div class="receipt-info">
+
+        <div>
+
+          <span>
+            Pedido
+          </span>
+
+          <strong>
+            #{{ pedido?.id }}
+          </strong>
+
+        </div>
+
+
+        <div>
+
+          <span>
+            Cliente
+          </span>
+
+          <strong>
+            {{ pedido?.cliente }}
+          </strong>
+
+        </div>
+
+
+        <div>
+
+          <span>
+            Fecha
+          </span>
+
+          <strong>
+            {{ pedido?.fecha }}
+          </strong>
+
+        </div>
+
+
+        <div>
+
+          <span>
+            Monto
+          </span>
+
+          <strong>
+            ${{ pedido?.total?.toLocaleString('es-CL') }}
+          </strong>
+
+        </div>
+
+
+        <div>
+
+          <span>
+            Estado
+          </span>
+
+          <strong>
+            {{ pedido?.comprobante }}
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div class="receipt-placeholder">
+
+        <div class="receipt-icon">
+          🧾
+        </div>
+
+        <p>
+          Comprobante de transferencia
+        </p>
+
+        <small>
+          Documento asociado al pedido #{{ pedido?.id }}
+        </small>
+
+      </div>
+
+    </div>
+
+
+    <div class="receipt-modal-footer">
+
+      <button
+        type="button"
+        class="close-button"
+        (click)="cerrarComprobante()"
+      >
+        Cerrar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ACCIONES -->
+
+<section
+  class="detail-card actions-card"
+  *ngIf="pedido"
+>
+
+  <h2>
+    Acciones del administrador
+  </h2>
+
+
+  <p *ngIf="!decisionTomada">
+    Revisa el comprobante antes de aprobar el pedido.
+  </p>
+
+
+  <!-- BOTONES -->
+
+  <div
+    class="actions"
+    *ngIf="!decisionTomada"
+  >
+
+    <button
+      class="reject"
+      type="button"
+      (click)="rechazarPedido()"
+    >
+      ✕ Rechazar pedido
+    </button>
+
+
+    <button
+      class="approve"
+      type="button"
+      (click)="aprobarPedido()"
+    >
+      ✓ Aprobar pedido
+    </button>
+
+  </div>
+
+
+  <!-- APROBADO -->
+
+  <div
+    class="decision-success"
+    *ngIf="decisionTomada && pedido.estado === 'Aprobado'"
+  >
+
+    ✓ Este pedido ya fue aprobado.
+
+  </div>
+
+
+  <!-- RECHAZADO -->
+
+  <div
+    class="decision-rejected"
+    *ngIf="decisionTomada && pedido.estado === 'Rechazado'"
+  >
+
+    ✕ Este pedido fue rechazado.
+
+  </div>
+
+</section>

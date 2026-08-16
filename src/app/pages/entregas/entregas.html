@@ -1,0 +1,410 @@
+<div class="page-header">
+
+  <div>
+    <h1>Gestión de Entregas</h1>
+
+    <p>
+      Administra y supervisa las entregas de los pedidos.
+    </p>
+  </div>
+
+</div>
+
+
+<!-- ================================
+     FILTROS
+     ================================ -->
+
+<section class="toolbar">
+
+  <div class="search-box">
+
+    <span class="search-icon">
+      🔍
+    </span>
+
+    <input
+      type="text"
+      [(ngModel)]="terminoBusqueda"
+      placeholder="Buscar por cliente, dirección o pedido..."
+    >
+
+  </div>
+
+
+  <select
+    class="status-filter"
+    [(ngModel)]="filtroEstado"
+  >
+
+    <option value="Todos">
+      Todos los estados
+    </option>
+
+    <option value="Pendiente">
+      Pendiente
+    </option>
+
+    <option value="En preparación">
+      En preparación
+    </option>
+
+    <option value="En camino">
+      En camino
+    </option>
+
+    <option value="Entregado">
+      Entregado
+    </option>
+
+  </select>
+
+
+  <button
+    *ngIf="terminoBusqueda || filtroEstado !== 'Todos'"
+    class="clear-button"
+    type="button"
+    (click)="limpiarBusqueda(); cambiarFiltroEstado('Todos')"
+  >
+    Limpiar filtros
+  </button>
+
+</section>
+
+
+
+<!-- ================================
+     LISTADO
+     ================================ -->
+
+<section class="deliveries-card">
+
+  <div class="card-header">
+
+    <div>
+
+      <h2>
+        Entregas
+      </h2>
+
+      <p>
+        {{ entregasFiltradas.length }} entregas encontradas
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <div class="table-container">
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>
+            Pedido
+          </th>
+
+          <th>
+            Cliente
+          </th>
+
+          <th>
+            Dirección
+          </th>
+
+          <th>
+            Fecha
+          </th>
+
+          <th>
+            Responsable
+          </th>
+
+          <th>
+            Estado
+          </th>
+
+          <th>
+            Acciones
+          </th>
+
+        </tr>
+
+      </thead>
+
+
+      <tbody>
+
+        <tr
+          *ngFor="let entrega of entregasFiltradas"
+        >
+
+          <td>
+
+            <strong class="order-number">
+              #{{ entrega.pedido }}
+            </strong>
+
+          </td>
+
+
+          <td>
+
+            <div class="client-name">
+
+              <div class="client-icon">
+                👤
+              </div>
+
+              <strong>
+                {{ entrega.cliente }}
+              </strong>
+
+            </div>
+
+          </td>
+
+
+          <td>
+
+            <div class="address">
+
+              <span class="location-icon">
+                📍
+              </span>
+
+              <span>
+                {{ entrega.direccion }}
+              </span>
+
+            </div>
+
+          </td>
+
+
+          <td>
+            {{ entrega.fecha }}
+          </td>
+
+
+          <td>
+
+            <span
+              class="responsible"
+              [class.pending-responsible]="entrega.responsable === 'Pendiente'"
+            >
+              {{ entrega.responsable }}
+            </span>
+
+          </td>
+
+
+          <td>
+
+            <span
+              class="status"
+              [class.pending]="entrega.estado === 'Pendiente'"
+              [class.preparation]="entrega.estado === 'En preparación'"
+              [class.transit]="entrega.estado === 'En camino'"
+              [class.delivered]="entrega.estado === 'Entregado'"
+            >
+
+              {{ entrega.estado }}
+
+            </span>
+
+          </td>
+
+
+          <td>
+
+            <button
+              class="manage-button"
+              type="button"
+              (click)="abrirGestion(entrega)"
+            >
+              ⚙ Gestionar
+            </button>
+
+          </td>
+
+        </tr>
+
+
+        <!-- ================================
+             SIN RESULTADOS
+             ================================ -->
+
+        <tr
+          *ngIf="entregasFiltradas.length === 0"
+        >
+
+          <td
+            colspan="7"
+            class="no-results"
+          >
+
+            <div class="no-results-icon">
+              🚚
+            </div>
+
+            <strong>
+              No se encontraron entregas
+            </strong>
+
+            <p>
+              Intenta cambiar los filtros o realizar otra búsqueda.
+            </p>
+
+            <button
+              class="clear-button"
+              type="button"
+              (click)="limpiarBusqueda(); cambiarFiltroEstado('Todos')"
+            >
+              Mostrar todas las entregas
+            </button>
+
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</section>
+
+
+
+<!-- ================================
+     VENTANA DE GESTIÓN
+     ================================ -->
+
+<div
+  class="modal-overlay"
+  *ngIf="mostrarGestion && entregaSeleccionada"
+>
+
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <div>
+
+        <h2>
+          Gestionar entrega
+        </h2>
+
+        <p>
+          Pedido #{{ entregaSeleccionada.pedido }}
+        </p>
+
+      </div>
+
+
+      <button
+        class="close-button"
+        type="button"
+        (click)="cerrarGestion()"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <div class="modal-body">
+
+      <div class="delivery-info">
+
+        <div>
+          <span>Cliente</span>
+          <strong>
+            {{ entregaSeleccionada.cliente }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Dirección</span>
+          <strong>
+            {{ entregaSeleccionada.direccion }}
+          </strong>
+        </div>
+
+      </div>
+
+
+      <label>
+        Responsable
+      </label>
+
+      <select
+        [(ngModel)]="entregaSeleccionada.responsable"
+        class="modal-select"
+      >
+
+        <option value="Pendiente">
+          Pendiente de asignar
+        </option>
+
+        <option
+          *ngFor="let responsable of responsables"
+          [value]="responsable"
+        >
+          {{ responsable }}
+        </option>
+
+      </select>
+
+
+      <label>
+        Estado de la entrega
+      </label>
+
+      <select
+        [(ngModel)]="entregaSeleccionada.estado"
+        class="modal-select"
+      >
+
+        <option
+          *ngFor="let estado of estados"
+          [value]="estado"
+        >
+          {{ estado }}
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <div class="modal-footer">
+
+      <button
+        class="cancel-button"
+        type="button"
+        (click)="cerrarGestion()"
+      >
+        Cancelar
+      </button>
+
+
+      <button
+        class="save-button"
+        type="button"
+        (click)="guardarGestion()"
+      >
+        ✓ Guardar cambios
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

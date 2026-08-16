@@ -1,0 +1,672 @@
+<div class="page-header">
+
+  <div>
+    <h1>Gestión de Comprobantes</h1>
+
+    <p>
+      Revisa y administra los comprobantes de pago de los pedidos.
+    </p>
+  </div>
+
+</div>
+
+
+<!-- ================================
+     FILTROS
+     ================================ -->
+
+<section class="toolbar">
+
+  <div class="search-box">
+
+    <span class="search-icon">
+      🔍
+    </span>
+
+    <input
+      type="text"
+      [(ngModel)]="terminoBusqueda"
+      placeholder="Buscar por cliente o pedido..."
+    >
+
+  </div>
+
+
+  <select
+    class="status-filter"
+    [(ngModel)]="filtroEstado"
+  >
+
+    <option value="Todos">
+      Todos los estados
+    </option>
+
+    <option value="Pendiente de revisión">
+      Pendiente de revisión
+    </option>
+
+    <option value="Aprobado">
+      Aprobado
+    </option>
+
+    <option value="Rechazado">
+      Rechazado
+    </option>
+
+  </select>
+
+
+  <button
+    *ngIf="terminoBusqueda || filtroEstado !== 'Todos'"
+    class="clear-button"
+    type="button"
+    (click)="limpiarBusqueda(); cambiarFiltroEstado('Todos')"
+  >
+    Limpiar filtros
+  </button>
+
+</section>
+
+
+
+<!-- ================================
+     LISTADO DE COMPROBANTES
+     ================================ -->
+
+<section class="receipts-card">
+
+  <div class="card-header">
+
+    <div>
+
+      <h2>
+        Comprobantes
+      </h2>
+
+      <p>
+        {{ comprobantesFiltrados.length }} comprobantes encontrados
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <div class="table-container">
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>Comprobante</th>
+
+          <th>Pedido</th>
+
+          <th>Cliente</th>
+
+          <th>Fecha</th>
+
+          <th>Monto</th>
+
+          <th>Estado</th>
+
+          <th>Acciones</th>
+
+        </tr>
+
+      </thead>
+
+
+      <tbody>
+
+        <tr
+          *ngFor="let comprobante of comprobantesFiltrados"
+        >
+
+          <td>
+
+            <div class="receipt-name">
+
+              <div class="receipt-icon">
+                🧾
+              </div>
+
+              <strong>
+                #{{ comprobante.id }}
+              </strong>
+
+            </div>
+
+          </td>
+
+
+          <td>
+
+            <strong class="order-number">
+              #{{ comprobante.pedido }}
+            </strong>
+
+          </td>
+
+
+          <td>
+
+            <div class="client-name">
+
+              <div class="client-icon">
+                👤
+              </div>
+
+              <strong>
+                {{ comprobante.cliente }}
+              </strong>
+
+            </div>
+
+          </td>
+
+
+          <td>
+            {{ comprobante.fecha }}
+          </td>
+
+
+          <td class="amount">
+            ${{ comprobante.monto.toLocaleString('es-CL') }}
+          </td>
+
+
+          <td>
+
+            <span
+              class="status"
+              [class.pending]="comprobante.estado === 'Pendiente de revisión'"
+              [class.approved]="comprobante.estado === 'Aprobado'"
+              [class.rejected]="comprobante.estado === 'Rechazado'"
+            >
+
+              {{ comprobante.estado }}
+
+            </span>
+
+          </td>
+
+
+          <!-- ================================
+               ACCIONES
+               ================================ -->
+
+          <td>
+
+            <div class="actions">
+
+
+              <!-- VER COMPROBANTE -->
+
+              <button
+                class="action-button view"
+                type="button"
+                title="Ver comprobante"
+                (click)="verComprobante(comprobante)"
+              >
+                👁️
+              </button>
+
+
+              <!-- APROBAR -->
+
+              <button
+                *ngIf="comprobante.estado === 'Pendiente de revisión'"
+                class="action-button approve"
+                type="button"
+                title="Aprobar comprobante"
+                (click)="aprobarComprobante(comprobante)"
+              >
+                ✓
+              </button>
+
+
+              <!-- RECHAZAR -->
+
+              <button
+                *ngIf="comprobante.estado === 'Pendiente de revisión'"
+                class="action-button reject"
+                type="button"
+                title="Rechazar comprobante"
+                (click)="rechazarComprobante(comprobante)"
+              >
+                ✕
+              </button>
+
+
+              <!-- CAMBIAR ESTADO -->
+
+              <button
+                *ngIf="comprobante.estado !== 'Pendiente de revisión'"
+                class="action-button change"
+                type="button"
+                title="Cambiar estado"
+                (click)="abrirCambioEstado(comprobante)"
+              >
+                🔄
+              </button>
+
+
+            </div>
+
+          </td>
+
+        </tr>
+
+
+        <!-- ================================
+             SIN RESULTADOS
+             ================================ -->
+
+        <tr
+          *ngIf="comprobantesFiltrados.length === 0"
+        >
+
+          <td
+            colspan="7"
+            class="no-results"
+          >
+
+            <div class="no-results-icon">
+              🧾
+            </div>
+
+            <strong>
+              No se encontraron comprobantes
+            </strong>
+
+            <p>
+              Intenta cambiar los filtros o realizar otra búsqueda.
+            </p>
+
+            <button
+              class="clear-button"
+              type="button"
+              (click)="limpiarBusqueda(); cambiarFiltroEstado('Todos')"
+            >
+              Mostrar todos los comprobantes
+            </button>
+
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</section>
+
+
+
+<!-- ================================
+     MODAL VER COMPROBANTE
+     ================================ -->
+
+<div
+  class="receipt-overlay"
+  *ngIf="mostrarComprobante && comprobanteSeleccionado"
+  (click)="cerrarComprobante()"
+>
+
+  <div
+    class="receipt-modal"
+    (click)="$event.stopPropagation()"
+  >
+
+
+    <!-- CABECERA -->
+
+    <div class="receipt-modal-header">
+
+      <div>
+
+        <h2>
+          Comprobante de pago
+        </h2>
+
+        <p>
+          Comprobante #{{ comprobanteSeleccionado.id }}
+        </p>
+
+      </div>
+
+
+      <button
+        class="close-receipt"
+        type="button"
+        (click)="cerrarComprobante()"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+
+    <!-- CONTENIDO -->
+
+    <div class="receipt-modal-content">
+
+      <div class="receipt-preview">
+
+        <div class="receipt-preview-icon">
+          🧾
+        </div>
+
+        <strong>
+          Comprobante #{{ comprobanteSeleccionado.id }}
+        </strong>
+
+        <span>
+          Pedido #{{ comprobanteSeleccionado.pedido }}
+        </span>
+
+      </div>
+
+
+      <div class="receipt-info">
+
+        <div>
+
+          <span>
+            Cliente
+          </span>
+
+          <strong>
+            {{ comprobanteSeleccionado.cliente }}
+          </strong>
+
+        </div>
+
+
+        <div>
+
+          <span>
+            Fecha
+          </span>
+
+          <strong>
+            {{ comprobanteSeleccionado.fecha }}
+          </strong>
+
+        </div>
+
+
+        <div>
+
+          <span>
+            Monto
+          </span>
+
+          <strong>
+            ${{ comprobanteSeleccionado.monto.toLocaleString('es-CL') }}
+          </strong>
+
+        </div>
+
+
+        <div>
+
+          <span>
+            Estado
+          </span>
+
+          <strong>
+            {{ comprobanteSeleccionado.estado }}
+          </strong>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- PIE -->
+
+    <div class="receipt-modal-footer">
+
+      <button
+        class="cancel-button"
+        type="button"
+        (click)="cerrarComprobante()"
+      >
+        Cerrar
+      </button>
+
+
+      <!-- RECHAZAR -->
+
+      <button
+        *ngIf="comprobanteSeleccionado.estado === 'Pendiente de revisión'"
+        class="reject-receipt"
+        type="button"
+        (click)="rechazarDesdeModal()"
+      >
+        ✕ Rechazar
+      </button>
+
+
+      <!-- APROBAR -->
+
+      <button
+        *ngIf="comprobanteSeleccionado.estado === 'Pendiente de revisión'"
+        class="approve-receipt"
+        type="button"
+        (click)="aprobarDesdeModal()"
+      >
+        ✓ Aprobar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ================================
+     MODAL CONFIRMAR CAMBIO DE ESTADO
+     ================================ -->
+
+<div
+  class="confirmation-overlay"
+  *ngIf="mostrarConfirmacion && comprobanteSeleccionado"
+  (click)="cancelarCambioEstado()"
+>
+
+  <div
+    class="confirmation-modal"
+    (click)="$event.stopPropagation()"
+  >
+
+
+    <div class="confirmation-icon">
+      ⚠️
+    </div>
+
+
+    <h2>
+      Cambiar estado
+    </h2>
+
+
+    <p>
+
+      El comprobante
+
+      <strong>
+        #{{ comprobanteSeleccionado.id }}
+      </strong>
+
+      actualmente está
+
+      <strong>
+        {{ comprobanteSeleccionado.estado }}
+      </strong>.
+
+    </p>
+
+
+    <p>
+      ¿Deseas cambiar su estado?
+    </p>
+
+
+    <div class="confirmation-actions">
+
+      <button
+        class="cancel-confirmation"
+        type="button"
+        (click)="cancelarCambioEstado()"
+      >
+        Cancelar
+      </button>
+
+
+      <button
+        class="continue-confirmation"
+        type="button"
+        (click)="confirmarCambioEstado()"
+      >
+        Continuar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ================================
+     MODAL SELECCIONAR NUEVO ESTADO
+     ================================ -->
+
+<div
+  class="change-status-overlay"
+  *ngIf="mostrarCambioEstado && comprobanteSeleccionado"
+  (click)="cancelarCambioEstadoFinal()"
+>
+
+  <div
+    class="change-status-modal"
+    (click)="$event.stopPropagation()"
+  >
+
+
+    <!-- CABECERA -->
+
+    <div class="change-status-header">
+
+      <div>
+
+        <h2>
+          Cambiar estado del comprobante
+        </h2>
+
+        <p>
+          Comprobante #{{ comprobanteSeleccionado.id }}
+        </p>
+
+      </div>
+
+
+      <button
+        class="close-receipt"
+        type="button"
+        (click)="cancelarCambioEstadoFinal()"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+
+    <!-- CONTENIDO -->
+
+    <div class="change-status-content">
+
+
+      <div class="current-status">
+
+        <span>
+          Estado actual
+        </span>
+
+        <strong>
+          {{ comprobanteSeleccionado.estado }}
+        </strong>
+
+      </div>
+
+
+      <label for="nuevoEstado">
+        Nuevo estado
+      </label>
+
+
+      <select
+        id="nuevoEstado"
+        class="new-status-select"
+        [(ngModel)]="nuevoEstado"
+      >
+
+        <option value="Pendiente de revisión">
+          Pendiente de revisión
+        </option>
+
+        <option value="Aprobado">
+          Aprobado
+        </option>
+
+        <option value="Rechazado">
+          Rechazado
+        </option>
+
+      </select>
+
+    </div>
+
+
+
+    <!-- PIE -->
+
+    <div class="change-status-footer">
+
+      <button
+        class="cancel-button"
+        type="button"
+        (click)="cancelarCambioEstadoFinal()"
+      >
+        Cancelar
+      </button>
+
+
+      <button
+        class="approve-receipt"
+        type="button"
+        (click)="guardarCambioEstado()"
+      >
+        ✓ Guardar cambio
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
