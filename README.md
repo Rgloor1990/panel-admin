@@ -54,6 +54,37 @@ ng e2e
 
 Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
 
+
+## Rodrigo Sanhueza — Frontend Panel Administrador / Voluntario & QA
+
+Mi responsabilidad dentro del proyecto corresponde al desarrollo del frontend del panel administrador/voluntario y al aseguramiento de calidad.
+
+Implementé los módulos de:
+
+- Dashboard
+- Productos
+- Pedidos
+- Comprobantes
+- Entregas
+
+Además, desarrollé funcionalidades de gestión, navegación y actualización de estados.
+
+Como parte del rol de QA, realicé pruebas funcionales y pruebas de usabilidad para detectar y corregir errores antes de la entrega.
+
+### Evidencias de QA
+
+Se realizaron pruebas funcionales y de usabilidad sobre los principales módulos del panel administrador, verificando:
+
+- Creación, edición y eliminación de productos.
+- Búsqueda y filtrado de información.
+- Gestión y consulta de pedidos.
+- Visualización del detalle de pedidos.
+- Aprobación y rechazo de comprobantes.
+- Corrección de estados de comprobantes.
+- Gestión y filtrado de entregas.
+- Navegación entre los diferentes módulos del panel.
+- Validación de funcionamiento desde la perspectiva de un usuario administrador.
+
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
