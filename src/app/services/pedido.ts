@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
 
 export interface Producto {
   nombre: string;
@@ -9,9 +11,12 @@ export interface Producto {
 
 export interface Pedido {
   id: number;
+  codigo: string;
   cliente: string;
   correo: string;
   telefono: string;
+  direccionDespacho: string;
+  modalidadEntrega: string;
   fecha: string;
   total: number;
   estado: string;
@@ -19,155 +24,351 @@ export interface Pedido {
   productos: Producto[];
 }
 
+interface PedidoBackend {
+  id: number;
+  codigo: string;
+  nombreCliente: string;
+  emailCliente: string;
+  telefonoCliente: string;
+  direccionDespacho: string;
+  modalidadEntrega: string;
+  estado: string;
+  total: number;
+  fechaCreacion: string;
+  detalles: DetalleBackend[];
+}
+
+interface DetalleBackend {
+  id: number;
+  productoId: number;
+  nombreProducto: string;
+  cantidad: number;
+  precioUnitario: number;
+  subtotal: number;
+}
+
+export interface RevisionPagoRequest {
+  observacion?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class PedidoService {
 
-  private pedidos: Pedido[] = [
+  private apiUrl = 'http://localhost:8080/api/pedidos';
 
-    {
-      id: 1001,
-      cliente: 'Juan Pérez',
-      correo: 'juan.perez@email.com',
-      telefono: '+56 9 1234 5678',
-      fecha: '12/08/2026',
-      total: 25000,
-      estado: 'Pago en revisión',
-      comprobante: 'Pendiente de revisión',
-
-      productos: [
-        {
-          nombre: 'Mochila escolar',
-          cantidad: 1,
-          precio: 15000,
-          subtotal: 15000
-        },
-        {
-          nombre: 'Cuaderno universitario',
-          cantidad: 2,
-          precio: 5000,
-          subtotal: 10000
-        }
-      ]
-    },
-
-    {
-      id: 1002,
-      cliente: 'María González',
-      correo: 'maria.gonzalez@email.com',
-      telefono: '+56 9 9876 5432',
-      fecha: '12/08/2026',
-      total: 18000,
-      estado: 'Aprobado',
-      comprobante: 'Comprobante aprobado',
-
-      productos: [
-        {
-          nombre: 'Agenda escolar',
-          cantidad: 1,
-          precio: 8000,
-          subtotal: 8000
-        },
-        {
-          nombre: 'Set de lápices',
-          cantidad: 2,
-          precio: 5000,
-          subtotal: 10000
-        }
-      ]
-    },
-
-    {
-      id: 1003,
-      cliente: 'Carlos Soto',
-      correo: 'carlos.soto@email.com',
-      telefono: '+56 9 4567 8910',
-      fecha: '11/08/2026',
-      total: 32000,
-      estado: 'En preparación',
-      comprobante: 'Comprobante aprobado',
-
-      productos: [
-        {
-          nombre: 'Mochila deportiva',
-          cantidad: 1,
-          precio: 22000,
-          subtotal: 22000
-        },
-        {
-          nombre: 'Botella de agua',
-          cantidad: 1,
-          precio: 10000,
-          subtotal: 10000
-        }
-      ]
-    },
-
-    {
-      id: 1004,
-      cliente: 'Ana Martínez',
-      correo: 'ana.martinez@email.com',
-      telefono: '+56 9 1122 3344',
-      fecha: '10/08/2026',
-      total: 45000,
-      estado: 'Entregado',
-      comprobante: 'Comprobante aprobado',
-
-      productos: [
-        {
-          nombre: 'Mochila ejecutiva',
-          cantidad: 1,
-          precio: 30000,
-          subtotal: 30000
-        },
-        {
-          nombre: 'Cuaderno premium',
-          cantidad: 3,
-          precio: 5000,
-          subtotal: 15000
-        }
-      ]
-    }
-
-  ];
+  constructor(
+    private http: HttpClient
+  ) {}
 
 
-  obtenerPedidos(): Pedido[] {
-    return this.pedidos;
+  // =========================================================
+  // OBTENER TODOS LOS PEDIDOS
+  // =========================================================
+
+  obtenerPedidos(): Observable<Pedido[]> {
+
+    return this.http
+      .get<PedidoBackend[]>(this.apiUrl)
+      .pipe(
+        map(pedidosBackend =>
+          pedidosBackend.map(pedido =>
+            this.convertirPedido(pedido)
+          )
+        )
+      );
+
   }
 
 
-  obtenerPedidoPorId(id: number): Pedido | undefined {
-    return this.pedidos.find(
-      pedido => pedido.id === id
+  // =========================================================
+  // OBTENER PEDIDO POR ID
+  // =========================================================
+
+  obtenerPedidoPorId(id: number): Observable<Pedido> {
+
+    return this.http
+      .get<PedidoBackend>(
+        `${this.apiUrl}/${id}`
+      )
+      .pipe(
+        map(pedidoBackend =>
+          this.convertirPedido(pedidoBackend)
+        )
+      );
+
+  }
+
+
+  // =========================================================
+  // APROBAR PAGO
+  // =========================================================
+
+  aprobarPedido(
+    id: number,
+    observacion: string = ''
+  ): Observable<any> {
+
+    const request: RevisionPagoRequest = {
+      observacion: observacion
+    };
+
+    return this.http.post(
+      `${this.apiUrl}/${id}/pago/aprobar`,
+      request
     );
+
   }
 
 
-  aprobarPedido(id: number): void {
+  // =========================================================
+  // RECHAZAR PAGO
+  // =========================================================
 
-    const pedido = this.obtenerPedidoPorId(id);
+  rechazarPedido(
+    id: number,
+    observacion: string = ''
+  ): Observable<any> {
 
-    if (!pedido) {
-      return;
-    }
+    const request: RevisionPagoRequest = {
+      observacion: observacion
+    };
 
-    pedido.estado = 'Aprobado';
-    pedido.comprobante = 'Comprobante aprobado';
+    return this.http.post(
+      `${this.apiUrl}/${id}/pago/rechazar`,
+      request
+    );
+
   }
 
 
-  rechazarPedido(id: number): void {
+  // =========================================================
+  // INICIAR PREPARACIÓN
+  // =========================================================
 
-    const pedido = this.obtenerPedidoPorId(id);
+  iniciarPreparacion(
+    id: number
+  ): Observable<any> {
 
-    if (!pedido) {
-      return;
+    return this.http.post(
+      `${this.apiUrl}/${id}/preparacion/iniciar`,
+      {}
+    );
+
+  }
+
+
+  // =========================================================
+  // MARCAR LISTO PARA RETIRO
+  // =========================================================
+
+  marcarListoParaRetiro(
+    id: number
+  ): Observable<any> {
+
+    return this.http.post(
+      `${this.apiUrl}/${id}/entrega/listo-retiro`,
+      {}
+    );
+
+  }
+
+
+  // =========================================================
+  // MARCAR COMO ENVIADO
+  // =========================================================
+
+  marcarEnviado(
+    id: number
+  ): Observable<any> {
+
+    return this.http.post(
+      `${this.apiUrl}/${id}/entrega/enviar`,
+      {}
+    );
+
+  }
+
+
+  // =========================================================
+  // FINALIZAR PEDIDO
+  // =========================================================
+
+  finalizarPedido(
+    id: number
+  ): Observable<any> {
+
+    return this.http.post(
+      `${this.apiUrl}/${id}/finalizar`,
+      {}
+    );
+
+  }
+
+
+  // =========================================================
+  // CONVERTIR PEDIDO DEL BACKEND AL FORMATO DEL FRONTEND
+  // =========================================================
+
+  private convertirPedido(
+    pedido: PedidoBackend
+  ): Pedido {
+
+    return {
+
+      id: pedido.id,
+
+      codigo: pedido.codigo,
+
+      cliente: pedido.nombreCliente,
+
+      correo: pedido.emailCliente,
+
+      telefono: pedido.telefonoCliente,
+
+      direccionDespacho:
+        pedido.direccionDespacho ?? '',
+
+      modalidadEntrega:
+        pedido.modalidadEntrega ?? '',
+
+      fecha:
+        this.formatearFecha(
+          pedido.fechaCreacion
+        ),
+
+      total:
+        Number(pedido.total),
+
+      estado:
+        this.convertirEstado(
+          pedido.estado
+        ),
+
+      comprobante:
+        this.obtenerTextoComprobante(
+          pedido.estado
+        ),
+
+      productos:
+        (pedido.detalles ?? []).map(
+          detalle => ({
+
+            nombre:
+              detalle.nombreProducto,
+
+            cantidad:
+              detalle.cantidad,
+
+            precio:
+              Number(
+                detalle.precioUnitario
+              ),
+
+            subtotal:
+              Number(
+                detalle.subtotal
+              )
+
+          })
+        )
+
+    };
+
+  }
+
+
+  // =========================================================
+  // FORMATEAR FECHA
+  // =========================================================
+
+  private formatearFecha(
+    fecha: string
+  ): string {
+
+    if (!fecha) {
+      return '';
     }
 
-    pedido.estado = 'Rechazado';
-    pedido.comprobante = 'Comprobante rechazado';
+    const fechaObj = new Date(fecha);
+
+    return fechaObj.toLocaleDateString(
+      'es-CL'
+    );
+
+  }
+
+
+  // =========================================================
+  // CONVERTIR ESTADOS
+  // =========================================================
+
+  private convertirEstado(
+    estado: string
+  ): string {
+
+    switch (estado) {
+
+      case 'PENDIENTE_PAGO':
+        return 'Pendiente de pago';
+
+      case 'PAGO_EN_REVISION':
+        return 'Pago en revisión';
+
+      case 'PAGO_RECHAZADO':
+        return 'Rechazado';
+
+      case 'PAGO_APROBADO':
+        return 'Aprobado';
+
+      case 'EN_PREPARACION':
+        return 'En preparación';
+
+      case 'LISTO_PARA_RETIRO':
+        return 'Listo para retiro';
+
+      case 'ENVIADO':
+        return 'Enviado';
+
+      case 'FINALIZADO':
+        return 'Entregado';
+
+      case 'CANCELADO':
+        return 'Cancelado';
+
+      default:
+        return estado;
+
+    }
+
+  }
+
+
+  // =========================================================
+  // TEXTO DEL COMPROBANTE
+  // =========================================================
+
+  private obtenerTextoComprobante(
+    estado: string
+  ): string {
+
+    switch (estado) {
+
+      case 'PAGO_EN_REVISION':
+        return 'Pendiente de revisión';
+
+      case 'PAGO_APROBADO':
+        return 'Comprobante aprobado';
+
+      case 'PAGO_RECHAZADO':
+        return 'Comprobante rechazado';
+
+      default:
+        return 'Sin comprobante';
+
+    }
+
   }
 
 }

@@ -1,0 +1,100 @@
+<div class="tareas-container">
+
+  <div class="tareas-header">
+    <div>
+      <h1>Bandeja de tareas</h1>
+      <p>Gestiona las tareas pendientes del proceso</p>
+    </div>
+
+    <div class="contador">
+      <span>{{ tareas.length }}</span>
+      <small>tareas pendientes</small>
+    </div>
+  </div>
+
+  <div class="filtros">
+
+    <button
+      [class.activo]="filtro === 'todas'"
+      (click)="filtro = 'todas'">
+      Todas
+    </button>
+
+    <button
+      [class.activo]="filtro === 'pago'"
+      (click)="filtro = 'pago'">
+      Comprobantes
+    </button>
+
+    <button
+      [class.activo]="filtro === 'pedido'"
+      (click)="filtro = 'pedido'">
+      Pedidos
+    </button>
+
+    <button
+      [class.activo]="filtro === 'entrega'"
+      (click)="filtro = 'entrega'">
+      Entregas
+    </button>
+
+  </div>
+
+  <div class="tareas-lista">
+
+    @if (tareas.length === 0) {
+
+      <div class="sin-tareas">
+        <div class="icono-vacio">✓</div>
+        <h2>No hay tareas pendientes</h2>
+        <p>Las nuevas tareas aparecerán aquí.</p>
+      </div>
+
+    } @else {
+
+      @for (tarea of tareasFiltradas; track tarea.id) {
+
+        <div class="tarea-card">
+
+          <div class="tarea-icono">
+            {{ tarea.icono }}
+          </div>
+
+          <div class="tarea-info">
+
+            <div class="tarea-titulo">
+              <h2>{{ tarea.titulo }}</h2>
+
+              <span class="estado">
+                Pendiente
+              </span>
+            </div>
+
+            <p>{{ tarea.descripcion }}</p>
+
+            <div class="tarea-meta">
+              <span>📦 Pedido #{{ tarea.pedidoId }}</span>
+              <span>👤 {{ tarea.asignado }}</span>
+            </div>
+
+          </div>
+
+          <div class="tarea-accion">
+
+            <button
+              class="btn-ver"
+              (click)="abrirTarea(tarea)">
+              Ver tarea
+            </button>
+
+          </div>
+
+        </div>
+
+      }
+
+    }
+
+  </div>
+
+</div>

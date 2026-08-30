@@ -19,7 +19,6 @@
 
   </div>
 
-
   <span
     class="status pending"
     *ngIf="pedido"
@@ -30,12 +29,31 @@
 </div>
 
 
+<!-- ERROR -->
+
+<div
+  class="error-message"
+  *ngIf="error"
+>
+  {{ error }}
+</div>
+
+
+<!-- CARGANDO -->
+
+<div
+  class="loading-message"
+  *ngIf="cargando"
+>
+  Cargando información del pedido...
+</div>
+
 
 <!-- INFORMACIÓN -->
 
 <div
   class="detail-grid"
-  *ngIf="pedido"
+  *ngIf="pedido && !cargando"
 >
 
 
@@ -46,7 +64,6 @@
     <h2>
       Información del cliente
     </h2>
-
 
     <div class="info-row">
 
@@ -60,7 +77,6 @@
 
     </div>
 
-
     <div class="info-row">
 
       <span>
@@ -72,7 +88,6 @@
       </strong>
 
     </div>
-
 
     <div class="info-row">
 
@@ -89,7 +104,6 @@
   </section>
 
 
-
   <!-- PEDIDO -->
 
   <section class="detail-card">
@@ -97,7 +111,6 @@
     <h2>
       Información del pedido
     </h2>
-
 
     <div class="info-row">
 
@@ -111,6 +124,17 @@
 
     </div>
 
+    <div class="info-row">
+
+      <span>
+        Código
+      </span>
+
+      <strong>
+        {{ pedido.codigo }}
+      </strong>
+
+    </div>
 
     <div class="info-row">
 
@@ -124,6 +148,17 @@
 
     </div>
 
+    <div class="info-row">
+
+      <span>
+        Modalidad
+      </span>
+
+      <strong>
+        {{ pedido.modalidadEntrega }}
+      </strong>
+
+    </div>
 
     <div class="info-row">
 
@@ -142,18 +177,16 @@
 </div>
 
 
-
 <!-- PRODUCTOS -->
 
 <section
   class="detail-card products-card"
-  *ngIf="pedido"
+  *ngIf="pedido && !cargando"
 >
 
   <h2>
     Productos del pedido
   </h2>
-
 
   <table>
 
@@ -180,7 +213,6 @@
       </tr>
 
     </thead>
-
 
     <tbody>
 
@@ -226,18 +258,16 @@
 </section>
 
 
-
 <!-- COMPROBANTE -->
 
 <section
   class="detail-card"
-  *ngIf="pedido"
+  *ngIf="pedido && !cargando"
 >
 
   <h2>
     Comprobante de pago
   </h2>
-
 
   <div class="receipt">
 
@@ -247,13 +277,11 @@
         Estado del comprobante
       </span>
 
-
       <strong class="status pending">
         {{ pedido.comprobante }}
       </strong>
 
     </div>
-
 
     <button
       class="view-receipt"
@@ -268,7 +296,6 @@
 </section>
 
 
-
 <!-- MODAL DEL COMPROBANTE -->
 
 <div
@@ -276,7 +303,6 @@
   *ngIf="mostrarComprobante"
   (click)="cerrarComprobante()"
 >
-
 
   <div
     class="receipt-modal"
@@ -288,7 +314,6 @@
       <h2>
         Comprobante de pago
       </h2>
-
 
       <button
         class="close-receipt"
@@ -306,7 +331,6 @@
       <div class="receipt-logo">
         MAPUESCUELA
       </div>
-
 
       <h3>
         Comprobante de transferencia
@@ -327,6 +351,17 @@
 
         </div>
 
+        <div>
+
+          <span>
+            Código
+          </span>
+
+          <strong>
+            {{ pedido?.codigo }}
+          </strong>
+
+        </div>
 
         <div>
 
@@ -340,7 +375,6 @@
 
         </div>
 
-
         <div>
 
           <span>
@@ -353,7 +387,6 @@
 
         </div>
 
-
         <div>
 
           <span>
@@ -365,7 +398,6 @@
           </strong>
 
         </div>
-
 
         <div>
 
@@ -418,12 +450,11 @@
 </div>
 
 
-
-<!-- ACCIONES -->
+<!-- ACCIONES DEL ADMINISTRADOR -->
 
 <section
   class="detail-card actions-card"
-  *ngIf="pedido"
+  *ngIf="pedido && !cargando"
 >
 
   <h2>
@@ -431,46 +462,188 @@
   </h2>
 
 
-  <p *ngIf="!decisionTomada">
-    Revisa el comprobante antes de aprobar el pedido.
-  </p>
-
-
-  <!-- BOTONES -->
+  <!-- PAGO EN REVISIÓN -->
 
   <div
-    class="actions"
-    *ngIf="!decisionTomada"
+    *ngIf="pedido.estado === 'Pago en revisión'"
   >
 
-    <button
-      class="reject"
-      type="button"
-      (click)="rechazarPedido()"
-    >
-      ✕ Rechazar pedido
-    </button>
+    <p>
+      Revisa el comprobante antes de aprobar o rechazar el pago.
+    </p>
 
+    <div class="actions">
 
-    <button
-      class="approve"
-      type="button"
-      (click)="aprobarPedido()"
-    >
-      ✓ Aprobar pedido
-    </button>
+      <button
+        class="reject"
+        type="button"
+        [disabled]="procesando"
+        (click)="rechazarPedido()"
+      >
+        ✕ Rechazar pedido
+      </button>
+
+      <button
+        class="approve"
+        type="button"
+        [disabled]="procesando"
+        (click)="aprobarPedido()"
+      >
+        ✓ Aprobar pedido
+      </button>
+
+    </div>
 
   </div>
 
 
-  <!-- APROBADO -->
+  <!-- PAGO APROBADO -->
 
   <div
-    class="decision-success"
-    *ngIf="decisionTomada && pedido.estado === 'Aprobado'"
+    *ngIf="pedido.estado === 'Aprobado'"
   >
 
-    ✓ Este pedido ya fue aprobado.
+    <p>
+      ✓ El pago fue aprobado correctamente.
+    </p>
+
+    <div class="actions">
+
+      <button
+        class="approve"
+        type="button"
+        [disabled]="procesando"
+        (click)="iniciarPreparacion()"
+      >
+        📦 Iniciar preparación
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- EN PREPARACIÓN + RETIRO -->
+
+  <div
+    *ngIf="
+      pedido.estado === 'En preparación' &&
+      pedido.modalidadEntrega === 'RETIRO'
+    "
+  >
+
+    <p>
+      El pedido está siendo preparado para retiro.
+    </p>
+
+    <div class="actions">
+
+      <button
+        class="approve"
+        type="button"
+        [disabled]="procesando"
+        (click)="marcarListoParaRetiro()"
+      >
+        ✓ Marcar listo para retiro
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- EN PREPARACIÓN + DESPACHO -->
+
+  <div
+    *ngIf="
+      pedido.estado === 'En preparación' &&
+      pedido.modalidadEntrega === 'DESPACHO'
+    "
+  >
+
+    <p>
+      El pedido está siendo preparado para despacho.
+    </p>
+
+    <div class="actions">
+
+      <button
+        class="approve"
+        type="button"
+        [disabled]="procesando"
+        (click)="marcarEnviado()"
+      >
+        🚚 Marcar como enviado
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- LISTO PARA RETIRO -->
+
+  <div
+    *ngIf="pedido.estado === 'Listo para retiro'"
+  >
+
+    <p>
+      El pedido está listo para ser retirado por el cliente.
+    </p>
+
+    <div class="actions">
+
+      <button
+        class="approve"
+        type="button"
+        [disabled]="procesando"
+        (click)="finalizarPedido()"
+      >
+        ✓ Finalizar pedido
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- ENVIADO -->
+
+  <div
+    *ngIf="pedido.estado === 'Enviado'"
+  >
+
+    <p>
+      El pedido fue enviado al cliente.
+    </p>
+
+    <div class="actions">
+
+      <button
+        class="approve"
+        type="button"
+        [disabled]="procesando"
+        (click)="finalizarPedido()"
+      >
+        ✓ Finalizar pedido
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- FINALIZADO -->
+
+  <div
+    *ngIf="pedido.estado === 'Entregado'"
+  >
+
+    <div class="decision-success">
+
+      ✓ Este pedido ya fue finalizado.
+
+    </div>
 
   </div>
 
@@ -478,11 +651,14 @@
   <!-- RECHAZADO -->
 
   <div
-    class="decision-rejected"
-    *ngIf="decisionTomada && pedido.estado === 'Rechazado'"
+    *ngIf="pedido.estado === 'Rechazado'"
   >
 
-    ✕ Este pedido fue rechazado.
+    <div class="decision-rejected">
+
+      ✕ Este pedido fue rechazado.
+
+    </div>
 
   </div>
 

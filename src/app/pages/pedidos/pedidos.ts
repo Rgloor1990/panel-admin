@@ -19,6 +19,10 @@ export class Pedidos {
 
   mensajeActualizacion: boolean = false;
 
+  cargando: boolean = false;
+
+  error: string = '';
+
 
   constructor(
     private router: Router,
@@ -33,7 +37,43 @@ export class Pedidos {
 
   cargarPedidos(): void {
 
-    this.pedidos = this.pedidoService.obtenerPedidos();
+    this.cargando = true;
+
+    this.error = '';
+
+    this.pedidoService.obtenerPedidos().subscribe({
+
+      next: (pedidos) => {
+
+        console.log('Pedidos recibidos desde el backend:', pedidos);
+
+        this.pedidos = pedidos;
+
+        this.cargando = false;
+
+        this.cdr.detectChanges();
+
+      },
+
+      error: (err) => {
+
+        console.error(
+          'Error al obtener los pedidos:',
+          err
+        );
+
+        this.error =
+          'No fue posible cargar los pedidos. Verifica que el backend esté funcionando.';
+
+        this.pedidos = [];
+
+        this.cargando = false;
+
+        this.cdr.detectChanges();
+
+      }
+
+    });
 
   }
 
@@ -96,6 +136,7 @@ export class Pedidos {
       const coincideBusqueda =
         texto === '' ||
         pedido.id.toString().includes(texto) ||
+        pedido.codigo.toLowerCase().includes(texto) ||
         pedido.cliente.toLowerCase().includes(texto);
 
       return coincideFiltro && coincideBusqueda;
