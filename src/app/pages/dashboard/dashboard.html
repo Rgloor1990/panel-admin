@@ -12,92 +12,180 @@
 
 </header>
 
+
 <section class="dashboard">
 
   <h2>Resumen</h2>
 
+
   <div class="cards">
 
+    <!-- PEDIDOS PENDIENTES -->
+
     <div class="card">
+
       <span class="card-icon">🛒</span>
+
       <div>
         <p>Pedidos pendientes</p>
-        <strong>12</strong>
+        <strong>{{ pedidosPendientes }}</strong>
       </div>
+
     </div>
 
+
+    <!-- COMPROBANTES POR REVISAR -->
+
     <div class="card">
+
       <span class="card-icon">🧾</span>
+
       <div>
         <p>Comprobantes por revisar</p>
-        <strong>5</strong>
+        <strong>{{ comprobantesPorRevisar }}</strong>
       </div>
+
     </div>
 
+
+    <!-- PEDIDOS EN PREPARACIÓN -->
+
     <div class="card">
+
       <span class="card-icon">📦</span>
+
       <div>
         <p>Pedidos en preparación</p>
-        <strong>8</strong>
+        <strong>{{ pedidosEnPreparacion }}</strong>
       </div>
+
     </div>
 
+
+    <!-- ENTREGAS PENDIENTES -->
+
     <div class="card">
+
       <span class="card-icon">🚚</span>
+
       <div>
         <p>Entregas pendientes</p>
-        <strong>6</strong>
+        <strong>{{ entregasPendientes }}</strong>
       </div>
+
     </div>
 
   </div>
 
+
+  <!-- PEDIDOS RECIENTES -->
+
   <div class="orders-section">
 
     <div class="section-header">
+
       <h2>Pedidos recientes</h2>
-      
+
+      <p>
+        Pedidos cargados: {{ pedidos.length }}
+      </p>
+
     </div>
+
 
     <table>
 
       <thead>
+
         <tr>
           <th>Pedido</th>
           <th>Cliente</th>
           <th>Fecha</th>
           <th>Estado</th>
         </tr>
+
       </thead>
+
 
       <tbody>
 
-        <tr>
-          <td>#1001</td>
-          <td>Juan Pérez</td>
-          <td>12/08/2026</td>
-          <td>
-            <span class="status pending">Pendiente</span>
-          </td>
-        </tr>
+        @if (pedidos.length > 0) {
 
-        <tr>
-          <td>#1002</td>
-          <td>María González</td>
-          <td>12/08/2026</td>
-          <td>
-            <span class="status approved">Aprobado</span>
-          </td>
-        </tr>
+          @for (pedido of pedidos; track pedido.id) {
 
-        <tr>
-          <td>#1003</td>
-          <td>Carlos Soto</td>
-          <td>11/08/2026</td>
-          <td>
-            <span class="status preparation">En preparación</span>
-          </td>
-        </tr>
+            <tr>
+
+              <td>
+                #{{ pedido.id }}
+              </td>
+
+              <td>
+                {{ pedido.cliente }}
+              </td>
+
+              <td>
+                {{ pedido.fecha }}
+              </td>
+
+              <td>
+
+                <span
+                  class="status"
+                  [ngClass]="{
+
+                    'pending':
+                      pedido.estado === 'Pendiente de pago' ||
+                      pedido.estado === 'Pago en revisión',
+
+                    'approved':
+                      pedido.estado === 'Aprobado' ||
+                      pedido.estado === 'Entregado',
+
+                    'preparation':
+                      pedido.estado === 'En preparación',
+
+                    'rejected':
+                      pedido.estado === 'Rechazado' ||
+                      pedido.estado === 'Cancelado',
+
+                    'ready':
+                      pedido.estado === 'Listo para retiro',
+
+                    'sent':
+                      pedido.estado === 'Enviado'
+
+                  }"
+                >
+
+                  {{ pedido.estado }}
+
+                </span>
+
+              </td>
+
+            </tr>
+
+          }
+
+        }
+
+
+        @if (pedidos.length === 0) {
+
+          <tr>
+
+            <td
+              colspan="4"
+              style="text-align: center;"
+            >
+
+              No hay pedidos registrados.
+
+            </td>
+
+          </tr>
+
+        }
 
       </tbody>
 

@@ -56,7 +56,7 @@ export interface RevisionPagoRequest {
 })
 export class PedidoService {
 
-  private apiUrl = 'http://localhost:8080/api/pedidos';
+  private apiUrl = '/api/pedidos';
 
   constructor(
     private http: HttpClient
