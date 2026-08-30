@@ -55,35 +55,25 @@ ng e2e
 Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
 
 
-## Rodrigo Sanhueza — Frontend Panel Administrador / Voluntario & QA
+## Rodrigo Sanhueza
 
-Mi responsabilidad dentro del proyecto corresponde al desarrollo del frontend del panel administrador/voluntario y al aseguramiento de calidad.
+Durante esta etapa del proyecto participé principalmente en el desarrollo del Panel de Administración de Mapuescuela.
 
-Implementé los módulos de:
+Mis principales aportes fueron:
 
-- Dashboard
-- Productos
-- Pedidos
-- Comprobantes
-- Entregas
+- Desarrollo y actualización del Dashboard del Panel de Administración.
+- Implementación de la visualización dinámica de los pedidos registrados.
+- Conexión del panel con la información de pedidos del sistema.
+- Implementación del resumen de pedidos pendientes, comprobantes por revisar, pedidos en preparación y entregas pendientes.
+- Implementación de la visualización de los pedidos recientes, mostrando cliente, fecha y estado.
+- Adaptación de los estados de los pedidos para facilitar su comprensión.
+- Configuración del acceso del panel a la información de pedidos durante el desarrollo.
+- Pruebas de funcionamiento y corrección de errores en la carga y visualización de información.
+- Preparación del avance del Panel de Administración para la Entrega 2.
 
-Además, desarrollé funcionalidades de gestión, navegación y actualización de estados.
+### Evidencia del avance
 
-Como parte del rol de QA, realicé pruebas funcionales y pruebas de usabilidad para detectar y corregir errores antes de la entrega.
-
-### Evidencias de QA
-
-Se realizaron pruebas funcionales y de usabilidad sobre los principales módulos del panel administrador, verificando:
-
-- Creación, edición y eliminación de productos.
-- Búsqueda y filtrado de información.
-- Gestión y consulta de pedidos.
-- Visualización del detalle de pedidos.
-- Aprobación y rechazo de comprobantes.
-- Corrección de estados de comprobantes.
-- Gestión y filtrado de entregas.
-- Navegación entre los diferentes módulos del panel.
-- Validación de funcionamiento desde la perspectiva de un usuario administrador.
+En esta etapa se logró que el Panel de Administración obtenga y muestre información real de los pedidos registrados en el sistema, reemplazando la información ficticia utilizada inicialmente en el Dashboard.
 
 ## Additional Resources
 
