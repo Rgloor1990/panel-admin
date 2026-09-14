@@ -12,6 +12,25 @@
 
 
 <!-- ================================
+     MENSAJES
+     ================================ -->
+
+<div
+  class="success-message"
+  *ngIf="mensajeExito"
+>
+  ✓ {{ mensajeExito }}
+</div>
+
+<div
+  class="error-message"
+  *ngIf="mensajeError"
+>
+  ⚠️ {{ mensajeError }}
+</div>
+
+
+<!-- ================================
      FILTROS
      ================================ -->
 
@@ -68,7 +87,6 @@
 </section>
 
 
-
 <!-- ================================
      LISTADO DE COMPROBANTES
      ================================ -->
@@ -92,7 +110,24 @@
   </div>
 
 
-  <div class="table-container">
+  <!-- CARGANDO -->
+
+  <div
+    class="loading-container"
+    *ngIf="cargando"
+  >
+    <div class="loading-spinner"></div>
+
+    <p>
+      Cargando comprobantes...
+    </p>
+  </div>
+
+
+  <div
+    class="table-container"
+    *ngIf="!cargando"
+  >
 
     <table>
 
@@ -145,7 +180,7 @@
           <td>
 
             <strong class="order-number">
-              #{{ comprobante.pedido }}
+              #{{ comprobante.codigoPedido }}
             </strong>
 
           </td>
@@ -202,7 +237,6 @@
 
             <div class="actions">
 
-
               <!-- VER COMPROBANTE -->
 
               <button
@@ -222,9 +256,16 @@
                 class="action-button approve"
                 type="button"
                 title="Aprobar comprobante"
+                [disabled]="procesandoId === comprobante.id"
                 (click)="aprobarComprobante(comprobante)"
               >
-                ✓
+                <span *ngIf="procesandoId !== comprobante.id">
+                  ✓
+                </span>
+
+                <span *ngIf="procesandoId === comprobante.id">
+                  ⏳
+                </span>
               </button>
 
 
@@ -235,24 +276,11 @@
                 class="action-button reject"
                 type="button"
                 title="Rechazar comprobante"
+                [disabled]="procesandoId === comprobante.id"
                 (click)="rechazarComprobante(comprobante)"
               >
                 ✕
               </button>
-
-
-              <!-- CAMBIAR ESTADO -->
-
-              <button
-                *ngIf="comprobante.estado !== 'Pendiente de revisión'"
-                class="action-button change"
-                type="button"
-                title="Cambiar estado"
-                (click)="abrirCambioEstado(comprobante)"
-              >
-                🔄
-              </button>
-
 
             </div>
 
@@ -283,10 +311,11 @@
             </strong>
 
             <p>
-              Intenta cambiar los filtros o realizar otra búsqueda.
+              No hay comprobantes registrados que coincidan con la búsqueda.
             </p>
 
             <button
+              *ngIf="terminoBusqueda || filtroEstado !== 'Todos'"
               class="clear-button"
               type="button"
               (click)="limpiarBusqueda(); cambiarFiltroEstado('Todos')"
@@ -307,7 +336,6 @@
 </section>
 
 
-
 <!-- ================================
      MODAL VER COMPROBANTE
      ================================ -->
@@ -322,7 +350,6 @@
     class="receipt-modal"
     (click)="$event.stopPropagation()"
   >
-
 
     <!-- CABECERA -->
 
@@ -352,7 +379,6 @@
     </div>
 
 
-
     <!-- CONTENIDO -->
 
     <div class="receipt-modal-content">
@@ -368,8 +394,12 @@
         </strong>
 
         <span>
-          Pedido #{{ comprobanteSeleccionado.pedido }}
+          Pedido #{{ comprobanteSeleccionado.codigoPedido }}
         </span>
+
+        <small>
+          {{ comprobanteSeleccionado.nombreArchivo }}
+        </small>
 
       </div>
 
@@ -392,7 +422,7 @@
         <div>
 
           <span>
-            Fecha
+            Fecha de carga
           </span>
 
           <strong>
@@ -427,10 +457,39 @@
 
         </div>
 
+
+        <div
+          *ngIf="comprobanteSeleccionado.rutaArchivo"
+        >
+
+          <span>
+            Archivo o ruta
+          </span>
+
+          <strong class="file-path">
+            {{ comprobanteSeleccionado.rutaArchivo }}
+          </strong>
+
+        </div>
+
+
+        <div
+          *ngIf="comprobanteSeleccionado.observacion"
+        >
+
+          <span>
+            Observación
+          </span>
+
+          <strong>
+            {{ comprobanteSeleccionado.observacion }}
+          </strong>
+
+        </div>
+
       </div>
 
     </div>
-
 
 
     <!-- PIE -->
@@ -452,6 +511,7 @@
         *ngIf="comprobanteSeleccionado.estado === 'Pendiente de revisión'"
         class="reject-receipt"
         type="button"
+        [disabled]="procesandoId === comprobanteSeleccionado.id"
         (click)="rechazarDesdeModal()"
       >
         ✕ Rechazar
@@ -464,205 +524,10 @@
         *ngIf="comprobanteSeleccionado.estado === 'Pendiente de revisión'"
         class="approve-receipt"
         type="button"
+        [disabled]="procesandoId === comprobanteSeleccionado.id"
         (click)="aprobarDesdeModal()"
       >
         ✓ Aprobar
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-
-<!-- ================================
-     MODAL CONFIRMAR CAMBIO DE ESTADO
-     ================================ -->
-
-<div
-  class="confirmation-overlay"
-  *ngIf="mostrarConfirmacion && comprobanteSeleccionado"
-  (click)="cancelarCambioEstado()"
->
-
-  <div
-    class="confirmation-modal"
-    (click)="$event.stopPropagation()"
-  >
-
-
-    <div class="confirmation-icon">
-      ⚠️
-    </div>
-
-
-    <h2>
-      Cambiar estado
-    </h2>
-
-
-    <p>
-
-      El comprobante
-
-      <strong>
-        #{{ comprobanteSeleccionado.id }}
-      </strong>
-
-      actualmente está
-
-      <strong>
-        {{ comprobanteSeleccionado.estado }}
-      </strong>.
-
-    </p>
-
-
-    <p>
-      ¿Deseas cambiar su estado?
-    </p>
-
-
-    <div class="confirmation-actions">
-
-      <button
-        class="cancel-confirmation"
-        type="button"
-        (click)="cancelarCambioEstado()"
-      >
-        Cancelar
-      </button>
-
-
-      <button
-        class="continue-confirmation"
-        type="button"
-        (click)="confirmarCambioEstado()"
-      >
-        Continuar
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-
-<!-- ================================
-     MODAL SELECCIONAR NUEVO ESTADO
-     ================================ -->
-
-<div
-  class="change-status-overlay"
-  *ngIf="mostrarCambioEstado && comprobanteSeleccionado"
-  (click)="cancelarCambioEstadoFinal()"
->
-
-  <div
-    class="change-status-modal"
-    (click)="$event.stopPropagation()"
-  >
-
-
-    <!-- CABECERA -->
-
-    <div class="change-status-header">
-
-      <div>
-
-        <h2>
-          Cambiar estado del comprobante
-        </h2>
-
-        <p>
-          Comprobante #{{ comprobanteSeleccionado.id }}
-        </p>
-
-      </div>
-
-
-      <button
-        class="close-receipt"
-        type="button"
-        (click)="cancelarCambioEstadoFinal()"
-      >
-        ✕
-      </button>
-
-    </div>
-
-
-
-    <!-- CONTENIDO -->
-
-    <div class="change-status-content">
-
-
-      <div class="current-status">
-
-        <span>
-          Estado actual
-        </span>
-
-        <strong>
-          {{ comprobanteSeleccionado.estado }}
-        </strong>
-
-      </div>
-
-
-      <label for="nuevoEstado">
-        Nuevo estado
-      </label>
-
-
-      <select
-        id="nuevoEstado"
-        class="new-status-select"
-        [(ngModel)]="nuevoEstado"
-      >
-
-        <option value="Pendiente de revisión">
-          Pendiente de revisión
-        </option>
-
-        <option value="Aprobado">
-          Aprobado
-        </option>
-
-        <option value="Rechazado">
-          Rechazado
-        </option>
-
-      </select>
-
-    </div>
-
-
-
-    <!-- PIE -->
-
-    <div class="change-status-footer">
-
-      <button
-        class="cancel-button"
-        type="button"
-        (click)="cancelarCambioEstadoFinal()"
-      >
-        Cancelar
-      </button>
-
-
-      <button
-        class="approve-receipt"
-        type="button"
-        (click)="guardarCambioEstado()"
-      >
-        ✓ Guardar cambio
       </button>
 
     </div>

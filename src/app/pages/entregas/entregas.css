@@ -619,4 +619,286 @@
     width: 100%;
   }
 
+  /* ================================
+   MENSAJES
+   ================================ */
+
+.message {
+  padding: 13px 16px;
+  border-radius: 8px;
+  margin-bottom: 18px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.success-message {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.error-message {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+
+/* ================================
+   BOTÓN ACTUALIZAR
+   ================================ */
+
+.refresh-button {
+  background: white;
+  color: #2563eb;
+  border: 1px solid #2563eb;
+  padding: 9px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.refresh-button:hover {
+  background: #eff6ff;
+}
+
+.refresh-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+
+/* ================================
+   CARGANDO
+   ================================ */
+
+.loading-container {
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #dbeafe;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 12px;
+}
+
+.loading-container p {
+  margin: 0;
+  font-size: 14px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* ================================
+   TIPO DE ENTREGA
+   ================================ */
+
+.delivery-type {
+  display: inline-block;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+
+/* ================================
+   ESTADOS ADICIONALES
+   ================================ */
+
+.status.review {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status.approved {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status.ready {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.status.cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+
+/* ================================
+   INFORMACIÓN MODAL
+   ================================ */
+
+.delivery-info {
+  grid-template-columns: 1fr 1fr;
+}
+
+.delivery-info .full-width {
+  grid-column: 1 / -1;
+}
+
+
+/* ================================
+   BOTÓN RESPONSABLE
+   ================================ */
+
+.responsible-button {
+  width: 100%;
+  margin-bottom: 25px;
+}
+
+
+/* ================================
+   SECCIÓN DE ACCIONES
+   ================================ */
+
+.actions-section {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 22px;
+}
+
+.actions-section h3 {
+  margin: 0 0 6px;
+  color: #111827;
+  font-size: 16px;
+}
+
+.actions-help {
+  margin: 0 0 16px;
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.action-button {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.preparation-button {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+
+.preparation-button:hover {
+  background: #bfdbfe;
+}
+
+.ready-button {
+  background: #ede9fe;
+  border-color: #c4b5fd;
+  color: #6d28d9;
+}
+
+.ready-button:hover {
+  background: #ddd6fe;
+}
+
+.transit-button {
+  background: #e0e7ff;
+  border-color: #a5b4fc;
+  color: #4338ca;
+}
+
+.transit-button:hover {
+  background: #c7d2fe;
+}
+
+.delivered-button {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+}
+
+.delivered-button:hover {
+  background: #bbf7d0;
+}
+
+.no-actions {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  color: #6b7280;
+  border-radius: 7px;
+  padding: 12px;
+  font-size: 13px;
+  text-align: center;
+}
+
+
+/* ================================
+   MENSAJE MODAL
+   ================================ */
+
+.modal-message {
+  padding: 11px 13px;
+  border-radius: 7px;
+  margin-top: 15px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+
+/* ================================
+   MODAL MÁS GRANDE
+   ================================ */
+
+.modal {
+  max-width: 620px;
+}
+
+.modal-body {
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+
+/* ================================
+   RESPONSIVE
+   ================================ */
+
+@media (max-width: 700px) {
+  .delivery-info {
+    grid-template-columns: 1fr;
+  }
+
+  .delivery-info .full-width {
+    grid-column: auto;
+  }
+
+  .modal {
+    max-width: 100%;
+  }
+}
+
 }

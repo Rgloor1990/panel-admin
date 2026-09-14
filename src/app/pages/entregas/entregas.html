@@ -1,5 +1,4 @@
 <div class="page-header">
-
   <div>
     <h1>Gestión de Entregas</h1>
 
@@ -7,7 +6,25 @@
       Administra y supervisa las entregas de los pedidos.
     </p>
   </div>
+</div>
 
+
+<!-- ================================
+     MENSAJES GENERALES
+     ================================ -->
+
+<div
+  class="message success-message"
+  *ngIf="mensajeExito"
+>
+  ✓ {{ mensajeExito }}
+</div>
+
+<div
+  class="message error-message"
+  *ngIf="mensajeError"
+>
+  ⚠ {{ mensajeError }}
 </div>
 
 
@@ -37,24 +54,11 @@
     [(ngModel)]="filtroEstado"
   >
 
-    <option value="Todos">
-      Todos los estados
-    </option>
-
-    <option value="Pendiente">
-      Pendiente
-    </option>
-
-    <option value="En preparación">
-      En preparación
-    </option>
-
-    <option value="En camino">
-      En camino
-    </option>
-
-    <option value="Entregado">
-      Entregado
+    <option
+      *ngFor="let estado of estados"
+      [value]="estado"
+    >
+      {{ estado === 'Todos' ? 'Todos los estados' : estado }}
     </option>
 
   </select>
@@ -64,7 +68,7 @@
     *ngIf="terminoBusqueda || filtroEstado !== 'Todos'"
     class="clear-button"
     type="button"
-    (click)="limpiarBusqueda(); cambiarFiltroEstado('Todos')"
+    (click)="limpiarFiltros()"
   >
     Limpiar filtros
   </button>
@@ -72,9 +76,8 @@
 </section>
 
 
-
 <!-- ================================
-     LISTADO
+     LISTADO DE ENTREGAS
      ================================ -->
 
 <section class="deliveries-card">
@@ -82,7 +85,6 @@
   <div class="card-header">
 
     <div>
-
       <h2>
         Entregas
       </h2>
@@ -90,18 +92,48 @@
       <p>
         {{ entregasFiltradas.length }} entregas encontradas
       </p>
-
     </div>
+
+    <button
+      class="refresh-button"
+      type="button"
+      (click)="cargarEntregas()"
+      [disabled]="cargando"
+    >
+      ↻ Actualizar
+    </button>
 
   </div>
 
 
-  <div class="table-container">
+  <!-- ================================
+       CARGANDO
+       ================================ -->
+
+  <div
+    class="loading-container"
+    *ngIf="cargando"
+  >
+    <div class="loading-spinner"></div>
+
+    <p>
+      Cargando entregas...
+    </p>
+  </div>
+
+
+  <!-- ================================
+       TABLA
+       ================================ -->
+
+  <div
+    class="table-container"
+    *ngIf="!cargando && entregasFiltradas.length > 0"
+  >
 
     <table>
 
       <thead>
-
         <tr>
 
           <th>
@@ -114,6 +146,10 @@
 
           <th>
             Dirección
+          </th>
+
+          <th>
+            Modalidad
           </th>
 
           <th>
@@ -133,7 +169,6 @@
           </th>
 
         </tr>
-
       </thead>
 
 
@@ -143,14 +178,16 @@
           *ngFor="let entrega of entregasFiltradas"
         >
 
-          <td>
+          <!-- PEDIDO -->
 
+          <td>
             <strong class="order-number">
               #{{ entrega.pedido }}
             </strong>
-
           </td>
 
+
+          <!-- CLIENTE -->
 
           <td>
 
@@ -169,6 +206,8 @@
           </td>
 
 
+          <!-- DIRECCIÓN -->
+
           <td>
 
             <div class="address">
@@ -186,16 +225,31 @@
           </td>
 
 
+          <!-- MODALIDAD -->
+
+          <td>
+            <span class="delivery-type">
+              {{ entrega.modalidadEntrega }}
+            </span>
+          </td>
+
+
+          <!-- FECHA -->
+
           <td>
             {{ entrega.fecha }}
           </td>
 
 
+          <!-- RESPONSABLE -->
+
           <td>
 
             <span
               class="responsible"
-              [class.pending-responsible]="entrega.responsable === 'Pendiente'"
+              [class.pending-responsible]="
+                entrega.responsable === 'Pendiente'
+              "
             >
               {{ entrega.responsable }}
             </span>
@@ -203,22 +257,21 @@
           </td>
 
 
+          <!-- ESTADO -->
+
           <td>
 
             <span
               class="status"
-              [class.pending]="entrega.estado === 'Pendiente'"
-              [class.preparation]="entrega.estado === 'En preparación'"
-              [class.transit]="entrega.estado === 'En camino'"
-              [class.delivered]="entrega.estado === 'Entregado'"
+              [ngClass]="obtenerClaseEstado(entrega.estado)"
             >
-
               {{ entrega.estado }}
-
             </span>
 
           </td>
 
+
+          <!-- ACCIONES -->
 
           <td>
 
@@ -234,56 +287,49 @@
 
         </tr>
 
-
-        <!-- ================================
-             SIN RESULTADOS
-             ================================ -->
-
-        <tr
-          *ngIf="entregasFiltradas.length === 0"
-        >
-
-          <td
-            colspan="7"
-            class="no-results"
-          >
-
-            <div class="no-results-icon">
-              🚚
-            </div>
-
-            <strong>
-              No se encontraron entregas
-            </strong>
-
-            <p>
-              Intenta cambiar los filtros o realizar otra búsqueda.
-            </p>
-
-            <button
-              class="clear-button"
-              type="button"
-              (click)="limpiarBusqueda(); cambiarFiltroEstado('Todos')"
-            >
-              Mostrar todas las entregas
-            </button>
-
-          </td>
-
-        </tr>
-
       </tbody>
 
     </table>
 
   </div>
 
+
+  <!-- ================================
+       SIN RESULTADOS
+       ================================ -->
+
+  <div
+    class="no-results"
+    *ngIf="!cargando && entregasFiltradas.length === 0"
+  >
+
+    <div class="no-results-icon">
+      🚚
+    </div>
+
+    <strong>
+      No se encontraron entregas
+    </strong>
+
+    <p>
+      Intenta cambiar los filtros o realizar otra búsqueda.
+    </p>
+
+    <button
+      class="clear-button"
+      type="button"
+      (click)="limpiarFiltros()"
+    >
+      Mostrar todas las entregas
+    </button>
+
+  </div>
+
 </section>
 
 
-
 <!-- ================================
-     VENTANA DE GESTIÓN
+     MODAL DE GESTIÓN
      ================================ -->
 
 <div
@@ -293,10 +339,11 @@
 
   <div class="modal">
 
+    <!-- ENCABEZADO DEL MODAL -->
+
     <div class="modal-header">
 
       <div>
-
         <h2>
           Gestionar entrega
         </h2>
@@ -304,9 +351,7 @@
         <p>
           Pedido #{{ entregaSeleccionada.pedido }}
         </p>
-
       </div>
-
 
       <button
         class="close-button"
@@ -319,26 +364,85 @@
     </div>
 
 
+    <!-- CUERPO DEL MODAL -->
+
     <div class="modal-body">
+
+
+      <!-- ================================
+           INFORMACIÓN DEL PEDIDO
+           ================================ -->
 
       <div class="delivery-info">
 
         <div>
           <span>Cliente</span>
+
           <strong>
             {{ entregaSeleccionada.cliente }}
           </strong>
         </div>
 
+
         <div>
+          <span>Correo</span>
+
+          <strong>
+            {{ entregaSeleccionada.correo || 'Sin correo' }}
+          </strong>
+        </div>
+
+
+        <div>
+          <span>Teléfono</span>
+
+          <strong>
+            {{ entregaSeleccionada.telefono || 'Sin teléfono' }}
+          </strong>
+        </div>
+
+
+        <div>
+          <span>Modalidad</span>
+
+          <strong>
+            {{ entregaSeleccionada.modalidadEntrega }}
+          </strong>
+        </div>
+
+
+        <div class="full-width">
           <span>Dirección</span>
+
           <strong>
             {{ entregaSeleccionada.direccion }}
           </strong>
         </div>
 
+
+        <div>
+          <span>Total</span>
+
+          <strong>
+            ${{ entregaSeleccionada.total | number:'1.0-0' }}
+          </strong>
+        </div>
+
+
+        <div>
+          <span>Estado actual</span>
+
+          <strong>
+            {{ entregaSeleccionada.estado }}
+          </strong>
+        </div>
+
       </div>
 
+
+      <!-- ================================
+           RESPONSABLE
+           ================================ -->
 
       <label>
         Responsable
@@ -349,40 +453,134 @@
         class="modal-select"
       >
 
-        <option value="Pendiente">
-          Pendiente de asignar
-        </option>
-
         <option
           *ngFor="let responsable of responsables"
           [value]="responsable"
         >
-          {{ responsable }}
+          {{ responsable === 'Pendiente'
+            ? 'Pendiente de asignar'
+            : responsable
+          }}
         </option>
 
       </select>
 
 
-      <label>
-        Estado de la entrega
-      </label>
-
-      <select
-        [(ngModel)]="entregaSeleccionada.estado"
-        class="modal-select"
+      <button
+        class="save-button responsible-button"
+        type="button"
+        (click)="guardarGestion()"
       >
+        ✓ Guardar responsable
+      </button>
 
-        <option
-          *ngFor="let estado of estados"
-          [value]="estado"
+
+      <!-- ================================
+           ACCIONES DEL BACKEND
+           ================================ -->
+
+      <div class="actions-section">
+
+        <h3>
+          Acciones del pedido
+        </h3>
+
+        <p class="actions-help">
+          Estas acciones actualizan el estado real del pedido en el backend.
+        </p>
+
+
+        <!-- INICIAR PREPARACIÓN -->
+
+        <button
+          *ngIf="puedeIniciarPreparacion()"
+          class="action-button preparation-button"
+          type="button"
+          (click)="iniciarPreparacion()"
+          [disabled]="procesando"
         >
-          {{ estado }}
-        </option>
+          🛠 Iniciar preparación
+        </button>
 
-      </select>
+
+        <!-- LISTO PARA RETIRO -->
+
+        <button
+          *ngIf="puedeMarcarListo()"
+          class="action-button ready-button"
+          type="button"
+          (click)="marcarListoParaRetiro()"
+          [disabled]="procesando"
+        >
+          📦 Marcar listo para retiro
+        </button>
+
+
+        <!-- ENVIAR -->
+
+        <button
+          *ngIf="puedeMarcarEnviado()"
+          class="action-button transit-button"
+          type="button"
+          (click)="marcarEnviado()"
+          [disabled]="procesando"
+        >
+          🚚 Marcar como enviado
+        </button>
+
+
+        <!-- FINALIZAR -->
+
+        <button
+          *ngIf="puedeFinalizar()"
+          class="action-button delivered-button"
+          type="button"
+          (click)="finalizarPedido()"
+          [disabled]="procesando"
+        >
+          ✓ Marcar como entregado
+        </button>
+
+
+        <!-- SIN ACCIONES -->
+
+        <div
+          class="no-actions"
+          *ngIf="
+            !puedeIniciarPreparacion() &&
+            !puedeMarcarListo() &&
+            !puedeMarcarEnviado() &&
+            !puedeFinalizar()
+          "
+        >
+          No hay acciones disponibles para el estado actual del pedido.
+        </div>
+
+      </div>
+
+
+      <!-- ================================
+           MENSAJES DEL MODAL
+           ================================ -->
+
+      <div
+        class="modal-message success-message"
+        *ngIf="mensajeExito"
+      >
+        ✓ {{ mensajeExito }}
+      </div>
+
+      <div
+        class="modal-message error-message"
+        *ngIf="mensajeError"
+      >
+        ⚠ {{ mensajeError }}
+      </div>
 
     </div>
 
+
+    <!-- PIE DEL MODAL -->
 
     <div class="modal-footer">
 
@@ -390,17 +588,9 @@
         class="cancel-button"
         type="button"
         (click)="cerrarGestion()"
+        [disabled]="procesando"
       >
-        Cancelar
-      </button>
-
-
-      <button
-        class="save-button"
-        type="button"
-        (click)="guardarGestion()"
-      >
-        ✓ Guardar cambios
+        Cerrar
       </button>
 
     </div>

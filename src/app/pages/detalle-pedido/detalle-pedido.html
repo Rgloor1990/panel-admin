@@ -1,665 +1,686 @@
-<div class="page-header">
+<div class="detalle-container">
 
-  <div>
+  <div class="encabezado-detalle">
+    <div>
+      <a routerLink="/pedidos" class="enlace-volver">
+        ← Volver a pedidos
+      </a>
 
-    <a
-      routerLink="/pedidos"
-      class="back-link"
-    >
-      ← Volver a pedidos
-    </a>
+      <h1>Detalle del pedido</h1>
 
-    <h1>
-      Detalle del Pedido #{{ pedido?.id }}
-    </h1>
+      <p class="subtitulo-detalle">
+        Revisión y gestión del pedido seleccionado
+      </p>
 
-    <p>
-      Información y gestión del pedido seleccionado.
-    </p>
-
+      <div *ngIf="pedido" class="estado-superior">
+        <span>●</span>
+        {{ pedido.estado }}
+      </div>
+    </div>
   </div>
 
-  <span
-    class="status pending"
-    *ngIf="pedido"
-  >
-    {{ pedido.estado }}
-  </span>
-
-</div>
-
-
-<!-- ERROR -->
-
-<div
-  class="error-message"
-  *ngIf="error"
->
-  {{ error }}
-</div>
-
-
-<!-- CARGANDO -->
-
-<div
-  class="loading-message"
-  *ngIf="cargando"
->
-  Cargando información del pedido...
-</div>
-
-
-<!-- INFORMACIÓN -->
-
-<div
-  class="detail-grid"
-  *ngIf="pedido && !cargando"
->
-
-
-  <!-- CLIENTE -->
-
-  <section class="detail-card">
-
-    <h2>
-      Información del cliente
-    </h2>
-
-    <div class="info-row">
-
-      <span>
-        Nombre
-      </span>
-
-      <strong>
-        {{ pedido.cliente }}
-      </strong>
-
-    </div>
-
-    <div class="info-row">
-
-      <span>
-        Correo
-      </span>
-
-      <strong>
-        {{ pedido.correo }}
-      </strong>
-
-    </div>
-
-    <div class="info-row">
-
-      <span>
-        Teléfono
-      </span>
-
-      <strong>
-        {{ pedido.telefono }}
-      </strong>
-
-    </div>
-
-  </section>
-
-
-  <!-- PEDIDO -->
-
-  <section class="detail-card">
-
-    <h2>
-      Información del pedido
-    </h2>
-
-    <div class="info-row">
-
-      <span>
-        Número
-      </span>
-
-      <strong>
-        #{{ pedido.id }}
-      </strong>
-
-    </div>
-
-    <div class="info-row">
-
-      <span>
-        Código
-      </span>
-
-      <strong>
-        {{ pedido.codigo }}
-      </strong>
-
-    </div>
-
-    <div class="info-row">
-
-      <span>
-        Fecha
-      </span>
-
-      <strong>
-        {{ pedido.fecha }}
-      </strong>
-
-    </div>
-
-    <div class="info-row">
-
-      <span>
-        Modalidad
-      </span>
-
-      <strong>
-        {{ pedido.modalidadEntrega }}
-      </strong>
-
-    </div>
-
-    <div class="info-row">
-
-      <span>
-        Estado
-      </span>
-
-      <strong>
-        {{ pedido.estado }}
-      </strong>
-
-    </div>
-
-  </section>
-
-</div>
-
-
-<!-- PRODUCTOS -->
-
-<section
-  class="detail-card products-card"
-  *ngIf="pedido && !cargando"
->
-
-  <h2>
-    Productos del pedido
-  </h2>
-
-  <table>
-
-    <thead>
-
-      <tr>
-
-        <th>
-          Producto
-        </th>
-
-        <th>
-          Cantidad
-        </th>
-
-        <th>
-          Precio
-        </th>
-
-        <th>
-          Subtotal
-        </th>
-
-      </tr>
-
-    </thead>
-
-    <tbody>
-
-      <tr
-        *ngFor="let producto of pedido.productos"
+  <div *ngIf="cargando" class="mensaje-cargando">
+    Cargando información del pedido...
+  </div>
+
+  <div *ngIf="error" class="mensaje-error">
+    {{ error }}
+  </div>
+
+  <ng-container *ngIf="pedido && !cargando">
+
+    <section class="tarjeta-detalle">
+      <h2 class="titulo-seccion">Información del pedido</h2>
+
+      <p class="descripcion-seccion">
+        Datos generales de la compra
+      </p>
+
+      <div class="informacion-grid">
+
+        <div class="informacion-item">
+          <span class="informacion-label">Código del pedido</span>
+          <span class="informacion-valor destacado">
+            {{ pedido.codigo }}
+          </span>
+        </div>
+
+        <div class="informacion-item">
+          <span class="informacion-label">ID del pedido</span>
+          <span class="informacion-valor">
+            #{{ pedido.id }}
+          </span>
+        </div>
+
+        <div class="informacion-item">
+          <span class="informacion-label">Cliente</span>
+          <span class="informacion-valor">
+            {{ pedido.cliente }}
+          </span>
+        </div>
+
+        <div class="informacion-item">
+          <span class="informacion-label">Correo electrónico</span>
+          <span class="informacion-valor">
+            {{ pedido.correo }}
+          </span>
+        </div>
+
+        <div class="informacion-item">
+          <span class="informacion-label">Teléfono</span>
+          <span class="informacion-valor">
+            {{ pedido.telefono }}
+          </span>
+        </div>
+
+        <div class="informacion-item">
+          <span class="informacion-label">Fecha de creación</span>
+          <span class="informacion-valor">
+            {{ pedido.fecha }}
+          </span>
+        </div>
+
+        <div class="informacion-item">
+          <span class="informacion-label">Modalidad de entrega</span>
+          <span class="informacion-valor">
+            {{ pedido.modalidadEntrega }}
+          </span>
+        </div>
+
+        <div class="informacion-item">
+          <span class="informacion-label">Estado actual</span>
+          <span class="informacion-valor">
+            {{ pedido.estado }}
+          </span>
+        </div>
+
+        <div class="informacion-item ancho-completo">
+          <span class="informacion-label">Total del pedido</span>
+          <span class="informacion-valor destacado">
+            {{ pedido.total | currency:'CLP':'symbol':'1.0-0' }}
+          </span>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="tarjeta-detalle">
+      <h2 class="titulo-seccion">Información de entrega</h2>
+
+      <p class="descripcion-seccion">
+        Datos relacionados con la entrega del pedido
+      </p>
+
+      <div class="entrega-box">
+        <div class="entrega-icono">🚚</div>
+
+        <div class="entrega-contenido">
+          <span class="entrega-label">Dirección de despacho</span>
+
+          <span class="entrega-direccion">
+            {{ pedido.direccionDespacho || 'No especificada' }}
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <section class="tarjeta-detalle">
+      <h2 class="titulo-seccion">Productos del pedido</h2>
+
+      <p class="descripcion-seccion">
+        Detalle de los productos incluidos en la compra
+      </p>
+
+      <div class="tabla-contenedor">
+        <table class="tabla-productos">
+
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Precio unitario</th>
+              <th>Cantidad</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let producto of pedido.productos">
+              <td>
+                <span class="producto-nombre">
+                  {{ producto.nombre }}
+                </span>
+              </td>
+
+              <td class="precio-producto">
+                {{ producto.precio | currency:'CLP':'symbol':'1.0-0' }}
+              </td>
+
+              <td>
+                {{ producto.cantidad }}
+              </td>
+
+              <td class="total-producto">
+                {{ producto.subtotal | currency:'CLP':'symbol':'1.0-0' }}
+              </td>
+            </tr>
+
+            <tr class="fila-total">
+              <td colspan="3">
+                Total del pedido
+              </td>
+
+              <td>
+                {{ pedido.total | currency:'CLP':'symbol':'1.0-0' }}
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+      </div>
+    </section>
+
+    <section class="tarjeta-detalle">
+      <h2 class="titulo-seccion">Comprobante de pago</h2>
+
+      <p class="descripcion-seccion">
+        Documento asociado al pago de este pedido
+      </p>
+
+      <div
+        *ngIf="comprobante"
+        class="comprobante-contenido"
       >
 
-        <td>
-          {{ producto.nombre }}
-        </td>
+        <div class="comprobante-informacion">
+          <div class="comprobante-icono">📄</div>
 
-        <td>
-          {{ producto.cantidad }}
-        </td>
+          <div class="comprobante-datos">
+            <span class="comprobante-nombre">
+              {{ comprobante.nombreArchivo }}
+            </span>
 
-        <td>
-          ${{ producto.precio.toLocaleString('es-CL') }}
-        </td>
+            <span class="comprobante-descripcion">
+              Comprobante registrado para el pedido
+              {{ pedido.codigo }}
+            </span>
 
-        <td>
-          ${{ producto.subtotal.toLocaleString('es-CL') }}
-        </td>
+            <span class="estado-comprobante">
+              {{ comprobante.decision || 'REGISTRADO' }}
+            </span>
+          </div>
+        </div>
 
-      </tr>
+        <div class="comprobante-acciones">
+          <button
+            type="button"
+            class="boton boton-principal boton-pequeno"
+            (click)="abrirComprobante()"
+          >
+            Ver comprobante
+          </button>
+        </div>
 
-    </tbody>
+      </div>
 
-  </table>
+      <div
+        *ngIf="!comprobante && pedido.estado === 'Pendiente de pago'"
+        class="gestion-pendiente"
+      >
+        <h3 class="gestion-pendiente-titulo">
+          Comprobante pendiente
+        </h3>
+
+        <p class="gestion-pendiente-texto">
+          Este pedido todavía no tiene un comprobante de pago registrado.
+        </p>
+      </div>
+
+      <div
+        *ngIf="!comprobante && pedido.estado !== 'Pendiente de pago'"
+        class="gestion-pendiente"
+      >
+        <h3 class="gestion-pendiente-titulo">
+          Sin comprobante disponible
+        </h3>
+
+        <p class="gestion-pendiente-texto">
+          No se encontró información del comprobante asociado a este pedido.
+        </p>
+      </div>
+    </section>
+
+    <section class="tarjeta-detalle">
+      <h2 class="titulo-seccion">Gestión del pedido</h2>
+
+      <p class="descripcion-seccion">
+        Acciones disponibles según el estado actual
+      </p>
+
+      <div
+        *ngIf="pedido.estado === 'Pendiente de pago'"
+        class="gestion-pendiente"
+      >
+        <h3 class="gestion-pendiente-titulo">
+          Pago pendiente
+        </h3>
+
+        <p class="gestion-pendiente-texto">
+          El pedido todavía está esperando el comprobante de pago.
+        </p>
+      </div>
+
+      <div
+        *ngIf="pedido.estado === 'Pago en revisión'"
+        class="gestion-revision"
+      >
+        <h3 class="gestion-revision-titulo">
+          Pago en revisión
+        </h3>
+
+        <p class="gestion-revision-texto">
+          Revisa el comprobante antes de aprobar o rechazar el pago.
+        </p>
+
+        <div class="gestion-revision-acciones">
+          <button
+            type="button"
+            class="boton boton-aprobar"
+            [disabled]="procesando"
+            (click)="aprobarPedido()"
+          >
+            ✓ Aprobar pago
+          </button>
+
+          <button
+            type="button"
+            class="boton boton-rechazar"
+            [disabled]="procesando"
+            (click)="rechazarPedido()"
+          >
+            ✕ Rechazar pago
+          </button>
+        </div>
+      </div>
+
+      <div
+        *ngIf="pedido.estado === 'Aprobado'"
+        class="gestion-revision"
+      >
+        <h3 class="gestion-revision-titulo">
+          Pago aprobado
+        </h3>
+
+        <p class="gestion-revision-texto">
+          El pago fue aprobado. Puedes comenzar la preparación del pedido.
+        </p>
+
+        <div class="gestion-revision-acciones">
+          <button
+            type="button"
+            class="boton boton-principal"
+            [disabled]="procesando"
+            (click)="iniciarPreparacion()"
+          >
+            📦 Iniciar preparación
+          </button>
+        </div>
+      </div>
+
+      <div
+        *ngIf="pedido.estado === 'En preparación'"
+        class="gestion-revision"
+      >
+        <h3 class="gestion-revision-titulo">
+          Pedido en preparación
+        </h3>
+
+        <p class="gestion-revision-texto">
+          El pedido se está preparando para su entrega.
+        </p>
+
+        <div class="gestion-revision-acciones">
+          <button
+            *ngIf="pedido.modalidadEntrega === 'RETIRO'"
+            type="button"
+            class="boton boton-principal"
+            [disabled]="procesando"
+            (click)="marcarListoParaRetiro()"
+          >
+            ✓ Marcar listo para retiro
+          </button>
+
+          <button
+            *ngIf="pedido.modalidadEntrega !== 'RETIRO'"
+            type="button"
+            class="boton boton-principal"
+            [disabled]="procesando"
+            (click)="marcarEnviado()"
+          >
+            🚚 Marcar como enviado
+          </button>
+        </div>
+      </div>
+
+      <div
+        *ngIf="pedido.estado === 'Listo para retiro'"
+        class="gestion-revision"
+      >
+        <h3 class="gestion-revision-titulo">
+          Pedido listo para retiro
+        </h3>
+
+        <p class="gestion-revision-texto">
+          El cliente puede retirar el pedido.
+        </p>
+
+        <div class="gestion-revision-acciones">
+          <button
+            type="button"
+            class="boton boton-principal"
+            [disabled]="procesando"
+            (click)="finalizarPedido()"
+          >
+            ✓ Finalizar pedido
+          </button>
+        </div>
+      </div>
+
+      <div
+        *ngIf="pedido.estado === 'Enviado'"
+        class="gestion-revision"
+      >
+        <h3 class="gestion-revision-titulo">
+          Pedido enviado
+        </h3>
+
+        <p class="gestion-revision-texto">
+          El pedido fue enviado al cliente.
+        </p>
+
+        <div class="gestion-revision-acciones">
+          <button
+            type="button"
+            class="boton boton-principal"
+            [disabled]="procesando"
+            (click)="finalizarPedido()"
+          >
+            ✓ Marcar como entregado
+          </button>
+        </div>
+      </div>
+
+      <div
+        *ngIf="
+          pedido.estado === 'Entregado' ||
+          pedido.estado === 'Rechazado' ||
+          pedido.estado === 'Cancelado'
+        "
+        class="gestion-exito"
+      >
+        <div class="gestion-exito-icono">🎉</div>
+
+        <h3 class="gestion-exito-titulo">
+          Pedido {{ pedido.estado.toLowerCase() }}
+        </h3>
+
+        <p class="gestion-exito-texto">
+          Este pedido completó correctamente su flujo de atención.
+        </p>
+      </div>
+
+    </section>
+
+  </ng-container>
+
+</div>
 
 
-  <div class="total">
-
-    <span>
-      Total del pedido
-    </span>
-
-    <strong>
-      ${{ pedido.total.toLocaleString('es-CL') }}
-    </strong>
-
-  </div>
-
-</section>
-
-
-<!-- COMPROBANTE -->
-
-<section
-  class="detail-card"
-  *ngIf="pedido && !cargando"
->
-
-  <h2>
-    Comprobante de pago
-  </h2>
-
-  <div class="receipt">
-
-    <div>
-
-      <span>
-        Estado del comprobante
-      </span>
-
-      <strong class="status pending">
-        {{ pedido.comprobante }}
-      </strong>
-
-    </div>
-
-    <button
-      class="view-receipt"
-      type="button"
-      (click)="abrirComprobante()"
-    >
-      👁 Ver comprobante
-    </button>
-
-  </div>
-
-</section>
-
-
-<!-- MODAL DEL COMPROBANTE -->
+<!-- MODAL VER COMPROBANTE -->
 
 <div
-  class="receipt-overlay"
-  *ngIf="mostrarComprobante"
+  *ngIf="mostrarComprobante && comprobante"
+  class="modal-fondo"
   (click)="cerrarComprobante()"
 >
 
   <div
-    class="receipt-modal"
+    class="modal-contenido"
     (click)="$event.stopPropagation()"
   >
 
-    <div class="receipt-modal-header">
+    <div class="modal-encabezado">
+      <div class="modal-titulo-contenedor">
+        <h2 class="modal-titulo">
+          Comprobante de pago
+        </h2>
 
-      <h2>
-        Comprobante de pago
-      </h2>
+        <p class="modal-subtitulo">
+          Información del comprobante asociado al pedido.
+        </p>
+      </div>
 
       <button
-        class="close-receipt"
         type="button"
+        class="modal-cerrar"
+        aria-label="Cerrar"
         (click)="cerrarComprobante()"
       >
-        ✕
+        ×
       </button>
-
     </div>
 
+    <div class="modal-cuerpo">
 
-    <div class="receipt-content">
+      <div class="comprobante-modal-archivo">
+        <div class="comprobante-modal-icono">📄</div>
 
-      <div class="receipt-logo">
-        MAPUESCUELA
+        <div class="comprobante-modal-archivo-info">
+          <p class="comprobante-modal-archivo-nombre">
+            {{ comprobante.nombreArchivo }}
+          </p>
+
+          <p class="comprobante-modal-archivo-descripcion">
+            Documento registrado en el sistema
+          </p>
+        </div>
       </div>
 
-      <h3>
-        Comprobante de transferencia
-      </h3>
+      <div class="modal-informacion">
 
-
-      <div class="receipt-info">
-
-        <div>
-
-          <span>
-            Pedido
+        <div class="modal-fila">
+          <span class="modal-fila-label">
+            ID del comprobante
           </span>
 
-          <strong>
-            #{{ pedido?.id }}
-          </strong>
-
+          <span class="modal-fila-valor">
+            #{{ comprobante.id }}
+          </span>
         </div>
 
-        <div>
-
-          <span>
-            Código
+        <div class="modal-fila">
+          <span class="modal-fila-label">
+            ID del pedido
           </span>
 
-          <strong>
-            {{ pedido?.codigo }}
-          </strong>
-
+          <span class="modal-fila-valor">
+            #{{ comprobante.pedidoId }}
+          </span>
         </div>
 
-        <div>
-
-          <span>
-            Cliente
+        <div class="modal-fila">
+          <span class="modal-fila-label">
+            Código del pedido
           </span>
 
-          <strong>
-            {{ pedido?.cliente }}
-          </strong>
-
+          <span class="modal-fila-valor">
+            {{ comprobante.codigoPedido }}
+          </span>
         </div>
 
-        <div>
-
-          <span>
-            Fecha
+        <div class="modal-fila">
+          <span class="modal-fila-label">
+            Nombre del archivo
           </span>
 
-          <strong>
-            {{ pedido?.fecha }}
-          </strong>
-
+          <span class="modal-fila-valor">
+            {{ comprobante.nombreArchivo }}
+          </span>
         </div>
 
-        <div>
-
-          <span>
-            Monto
+        <div class="modal-fila">
+          <span class="modal-fila-label">
+            Ruta del archivo
           </span>
 
-          <strong>
-            ${{ pedido?.total?.toLocaleString('es-CL') }}
-          </strong>
-
+          <span class="modal-fila-valor">
+            {{ comprobante.rutaArchivo }}
+          </span>
         </div>
 
-        <div>
-
-          <span>
-            Estado
+        <div class="modal-fila">
+          <span class="modal-fila-label">
+            Fecha de carga
           </span>
 
-          <strong>
-            {{ pedido?.comprobante }}
-          </strong>
+          <span class="modal-fila-valor">
+            {{ comprobante.fechaCarga | date:'dd/MM/yyyy HH:mm' }}
+          </span>
+        </div>
 
+        <div class="modal-fila">
+          <span class="modal-fila-label">
+            Decisión del pago
+          </span>
+
+          <span class="modal-fila-valor aprobado">
+            {{ comprobante.decision || 'REGISTRADO' }}
+          </span>
         </div>
 
       </div>
 
-
-      <div class="receipt-placeholder">
-
-        <div class="receipt-icon">
-          🧾
-        </div>
-
-        <p>
-          Comprobante de transferencia
-        </p>
-
-        <small>
-          Documento asociado al pedido #{{ pedido?.id }}
-        </small>
-
+      <div class="modal-nota">
+        <strong>Nota:</strong>
+        El backend actualmente almacena el nombre y la ruta del comprobante.
+        Para mostrar una imagen o permitir su descarga, posteriormente se
+        deberá implementar la carga real del archivo.
       </div>
 
     </div>
 
-
-    <div class="receipt-modal-footer">
-
+    <div class="modal-pie">
       <button
         type="button"
-        class="close-button"
+        class="boton boton-secundario"
         (click)="cerrarComprobante()"
       >
         Cerrar
       </button>
-
     </div>
 
   </div>
-
 </div>
 
 
-<!-- ACCIONES DEL ADMINISTRADOR -->
+<!-- MODAL REGISTRAR COMPROBANTE -->
 
-<section
-  class="detail-card actions-card"
-  *ngIf="pedido && !cargando"
+<div
+  *ngIf="mostrarFormularioComprobante"
+  class="modal-fondo"
+  (click)="cerrarFormularioComprobante()"
 >
 
-  <h2>
-    Acciones del administrador
-  </h2>
-
-
-  <!-- PAGO EN REVISIÓN -->
-
   <div
-    *ngIf="pedido.estado === 'Pago en revisión'"
+    class="modal-contenido"
+    (click)="$event.stopPropagation()"
   >
 
-    <p>
-      Revisa el comprobante antes de aprobar o rechazar el pago.
-    </p>
+    <div class="modal-encabezado">
+      <div class="modal-titulo-contenedor">
+        <h2 class="modal-titulo">
+          Registrar comprobante
+        </h2>
 
-    <div class="actions">
-
-      <button
-        class="reject"
-        type="button"
-        [disabled]="procesando"
-        (click)="rechazarPedido()"
-      >
-        ✕ Rechazar pedido
-      </button>
+        <p class="modal-subtitulo">
+          Ingresa los datos del comprobante de pago.
+        </p>
+      </div>
 
       <button
-        class="approve"
         type="button"
-        [disabled]="procesando"
-        (click)="aprobarPedido()"
+        class="modal-cerrar"
+        (click)="cerrarFormularioComprobante()"
       >
-        ✓ Aprobar pedido
+        ×
       </button>
+    </div>
+
+    <div class="modal-cuerpo">
+
+      <div class="formulario-grupo">
+        <label for="nombreArchivo">
+          Nombre del archivo
+        </label>
+
+        <input
+          id="nombreArchivo"
+          type="text"
+          [(ngModel)]="nombreArchivo"
+          placeholder="Ejemplo: comprobante-pago.png"
+        />
+      </div>
+
+      <div class="formulario-grupo">
+        <label for="rutaArchivo">
+          Ruta del archivo
+        </label>
+
+        <input
+          id="rutaArchivo"
+          type="text"
+          [(ngModel)]="rutaArchivo"
+          placeholder="Ejemplo: comprobantes/pedido-3/comprobante.png"
+        />
+      </div>
+
+      <div class="formulario-grupo">
+        <label for="observacionComprobante">
+          Observación
+        </label>
+
+        <textarea
+          id="observacionComprobante"
+          [(ngModel)]="observacionComprobante"
+          placeholder="Agrega una observación opcional"
+        ></textarea>
+      </div>
+
+      <p class="formulario-ayuda">
+        Por ahora se registra el nombre y la ruta del archivo.
+      </p>
 
     </div>
 
-  </div>
-
-
-  <!-- PAGO APROBADO -->
-
-  <div
-    *ngIf="pedido.estado === 'Aprobado'"
-  >
-
-    <p>
-      ✓ El pago fue aprobado correctamente.
-    </p>
-
-    <div class="actions">
+    <div class="modal-pie">
 
       <button
-        class="approve"
         type="button"
-        [disabled]="procesando"
-        (click)="iniciarPreparacion()"
+        class="boton boton-secundario"
+        (click)="cerrarFormularioComprobante()"
       >
-        📦 Iniciar preparación
+        Cancelar
       </button>
 
-    </div>
-
-  </div>
-
-
-  <!-- EN PREPARACIÓN + RETIRO -->
-
-  <div
-    *ngIf="
-      pedido.estado === 'En preparación' &&
-      pedido.modalidadEntrega === 'RETIRO'
-    "
-  >
-
-    <p>
-      El pedido está siendo preparado para retiro.
-    </p>
-
-    <div class="actions">
-
       <button
-        class="approve"
         type="button"
+        class="boton boton-principal"
         [disabled]="procesando"
-        (click)="marcarListoParaRetiro()"
+        (click)="registrarComprobante()"
       >
-        ✓ Marcar listo para retiro
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <!-- EN PREPARACIÓN + DESPACHO -->
-
-  <div
-    *ngIf="
-      pedido.estado === 'En preparación' &&
-      pedido.modalidadEntrega === 'DESPACHO'
-    "
-  >
-
-    <p>
-      El pedido está siendo preparado para despacho.
-    </p>
-
-    <div class="actions">
-
-      <button
-        class="approve"
-        type="button"
-        [disabled]="procesando"
-        (click)="marcarEnviado()"
-      >
-        🚚 Marcar como enviado
+        {{ procesando ? 'Guardando...' : 'Guardar comprobante' }}
       </button>
 
     </div>
 
   </div>
-
-
-  <!-- LISTO PARA RETIRO -->
-
-  <div
-    *ngIf="pedido.estado === 'Listo para retiro'"
-  >
-
-    <p>
-      El pedido está listo para ser retirado por el cliente.
-    </p>
-
-    <div class="actions">
-
-      <button
-        class="approve"
-        type="button"
-        [disabled]="procesando"
-        (click)="finalizarPedido()"
-      >
-        ✓ Finalizar pedido
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <!-- ENVIADO -->
-
-  <div
-    *ngIf="pedido.estado === 'Enviado'"
-  >
-
-    <p>
-      El pedido fue enviado al cliente.
-    </p>
-
-    <div class="actions">
-
-      <button
-        class="approve"
-        type="button"
-        [disabled]="procesando"
-        (click)="finalizarPedido()"
-      >
-        ✓ Finalizar pedido
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <!-- FINALIZADO -->
-
-  <div
-    *ngIf="pedido.estado === 'Entregado'"
-  >
-
-    <div class="decision-success">
-
-      ✓ Este pedido ya fue finalizado.
-
-    </div>
-
-  </div>
-
-
-  <!-- RECHAZADO -->
-
-  <div
-    *ngIf="pedido.estado === 'Rechazado'"
-  >
-
-    <div class="decision-rejected">
-
-      ✕ Este pedido fue rechazado.
-
-    </div>
-
-  </div>
-
-</section>
+</div>

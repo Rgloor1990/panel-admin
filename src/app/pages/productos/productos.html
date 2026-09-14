@@ -8,7 +8,6 @@
     </p>
   </div>
 
-
   <button
     class="add-button"
     type="button"
@@ -20,10 +19,6 @@
 </div>
 
 
-<!-- ================================
-     BÚSQUEDA
-     ================================ -->
-
 <section class="toolbar">
 
   <div class="search-box">
@@ -34,44 +29,35 @@
 
     <input
       type="text"
-      [(ngModel)]="terminoBusqueda"
+      [ngModel]="terminoBusqueda"
+      (ngModelChange)="cambiarBusqueda($event)"
       placeholder="Buscar producto o categoría..."
     >
 
   </div>
 
-
   <button
-    *ngIf="terminoBusqueda"
+    *ngIf="busquedaActiva"
     class="clear-button"
     type="button"
     (click)="limpiarBusqueda()"
   >
-    Limpiar
+    Limpiar búsqueda
   </button>
 
 </section>
 
-
-
-<!-- ================================
-     LISTADO DE PRODUCTOS
-     ================================ -->
 
 <section class="products-card">
 
   <div class="card-header">
 
     <div>
-
-      <h2>
-        Productos
-      </h2>
+      <h2>Productos</h2>
 
       <p>
         {{ productosFiltrados.length }} productos encontrados
       </p>
-
     </div>
 
   </div>
@@ -82,143 +68,22 @@
     <table>
 
       <thead>
-
         <tr>
-
-          <th>
-            Producto
-          </th>
-
-          <th>
-            Categoría
-          </th>
-
-          <th>
-            Precio
-          </th>
-
-          <th>
-            Stock
-          </th>
-
-          <th>
-            Estado
-          </th>
-
-          <th>
-            Acciones
-          </th>
-
+          <th>Producto</th>
+          <th>Categoría</th>
+          <th>Precio</th>
+          <th>Stock</th>
+          <th>Estado</th>
+          <th>Acciones</th>
         </tr>
-
       </thead>
 
 
       <tbody>
 
-        <tr
-          *ngFor="let producto of productosFiltrados"
-        >
+        <!-- ERROR DE CONEXIÓN -->
 
-          <td>
-
-            <div class="product-name">
-
-              <div class="product-icon">
-                📦
-              </div>
-
-              <strong>
-                {{ producto.nombre }}
-              </strong>
-
-            </div>
-
-          </td>
-
-
-          <td>
-            {{ producto.categoria }}
-          </td>
-
-
-          <td class="price">
-
-            ${{ producto.precio.toLocaleString('es-CL') }}
-
-          </td>
-
-
-          <td>
-
-            <span
-              class="stock"
-              [class.stock-low]="producto.stock > 0 && producto.stock <= 5"
-              [class.stock-empty]="producto.stock === 0"
-            >
-              {{ producto.stock }}
-            </span>
-
-          </td>
-
-
-          <td>
-
-            <span
-              class="status"
-              [class.available]="producto.estado === 'Disponible'"
-              [class.low]="producto.estado === 'Stock bajo'"
-              [class.empty]="producto.estado === 'Sin stock'"
-            >
-
-              {{ producto.estado }}
-
-            </span>
-
-          </td>
-
-
-          <td>
-
-            <div class="actions">
-
-              <!-- EDITAR -->
-
-              <button
-                class="action-button edit"
-                type="button"
-                title="Editar producto"
-                (click)="editarProducto(producto)"
-              >
-                ✏️
-              </button>
-
-
-              <!-- ELIMINAR -->
-
-              <button
-                class="action-button delete"
-                type="button"
-                title="Eliminar producto"
-                (click)="confirmarEliminar(producto)"
-              >
-                🗑️
-              </button>
-
-            </div>
-
-          </td>
-
-        </tr>
-
-
-        <!-- ================================
-             SIN RESULTADOS
-             ================================ -->
-
-        <tr
-          *ngIf="productosFiltrados.length === 0"
-        >
+        <tr *ngIf="errorCarga">
 
           <td
             colspan="6"
@@ -226,28 +91,179 @@
           >
 
             <div class="no-results-icon">
-              🔍
+              ⚠️
             </div>
 
             <strong>
-              No se encontraron productos
+              {{ errorCarga }}
             </strong>
 
             <p>
-              Intenta buscar con otro nombre o categoría.
+              Revisa la conexión con el servidor.
             </p>
 
             <button
               class="clear-button"
               type="button"
-              (click)="limpiarBusqueda()"
+              (click)="cargarProductos()"
             >
-              Mostrar todos los productos
+              Reintentar
             </button>
 
           </td>
 
         </tr>
+
+
+        <!-- PRODUCTOS -->
+
+        <ng-container *ngIf="!errorCarga">
+
+          <tr
+            *ngFor="let producto of productosFiltrados"
+          >
+
+            <td>
+
+              <div class="product-name">
+
+                <div class="product-icon">
+
+                  <img
+                    *ngIf="producto.fotoUrl"
+                    [src]="producto.fotoUrl"
+                    [alt]="producto.nombre"
+                    class="product-image"
+                  >
+
+                  <span *ngIf="!producto.fotoUrl">
+                    📦
+                  </span>
+
+                </div>
+
+                <div class="product-info">
+
+                  <strong>
+                    {{ producto.nombre }}
+                  </strong>
+
+                  <small *ngIf="producto.descripcion">
+                    {{ producto.descripcion }}
+                  </small>
+
+                </div>
+
+              </div>
+
+            </td>
+
+
+            <td>
+              {{ producto.categoria }}
+            </td>
+
+
+            <td class="price">
+              ${{ producto.precio.toLocaleString('es-CL') }}
+            </td>
+
+
+            <td>
+
+              <span
+                class="stock"
+                [class.stock-low]="producto.stock > 0 && producto.stock <= 5"
+                [class.stock-empty]="producto.stock === 0"
+              >
+                {{ producto.stock }}
+              </span>
+
+            </td>
+
+
+            <td>
+
+              <span
+                class="status"
+                [class.available]="producto.estado === 'Disponible'"
+                [class.low]="producto.estado === 'Stock bajo'"
+                [class.empty]="producto.estado === 'Sin stock'"
+              >
+                {{ producto.estado }}
+              </span>
+
+            </td>
+
+
+            <td>
+
+              <div class="actions">
+
+                <button
+                  class="action-button edit"
+                  type="button"
+                  title="Editar producto"
+                  (click)="editarProducto(producto)"
+                >
+                  ✏️
+                </button>
+
+                <button
+                  class="action-button delete"
+                  type="button"
+                  title="Eliminar producto"
+                  (click)="confirmarEliminar(producto)"
+                >
+                  🗑️
+                </button>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+
+          <!-- SIN RESULTADOS -->
+
+          <tr *ngIf="productosFiltrados.length === 0">
+
+            <td
+              colspan="6"
+              class="no-results"
+            >
+
+              <div class="no-results-icon">
+                🔍
+              </div>
+
+              <strong>
+                No se encontraron productos
+              </strong>
+
+              <p *ngIf="busquedaActiva">
+                No hay productos que coincidan con tu búsqueda.
+              </p>
+
+              <p *ngIf="!busquedaActiva">
+                Todavía no hay productos registrados.
+              </p>
+
+              <button
+                *ngIf="busquedaActiva"
+                class="clear-button"
+                type="button"
+                (click)="limpiarBusqueda()"
+              >
+                Mostrar todos los productos
+              </button>
+
+            </td>
+
+          </tr>
+
+        </ng-container>
 
       </tbody>
 
@@ -258,10 +274,7 @@
 </section>
 
 
-
-<!-- ================================
-     MODAL AGREGAR / EDITAR
-     ================================ -->
+<!-- MODAL AGREGAR / EDITAR -->
 
 <div
   class="product-overlay"
@@ -269,24 +282,16 @@
   (click)="cerrarFormulario()"
 >
 
-
   <div
     class="product-modal"
     (click)="$event.stopPropagation()"
   >
 
-
     <div class="product-modal-header">
 
       <h2>
-
-        {{ modoEdicion
-          ? 'Editar producto'
-          : 'Agregar producto'
-        }}
-
+        {{ modoEdicion ? 'Editar producto' : 'Agregar producto' }}
       </h2>
-
 
       <button
         class="close-product"
@@ -299,9 +304,7 @@
     </div>
 
 
-
     <div class="product-modal-content">
-
 
       <div class="form-group">
 
@@ -317,7 +320,6 @@
         >
 
       </div>
-
 
 
       <div class="form-group">
@@ -336,6 +338,54 @@
       </div>
 
 
+      <div class="form-group">
+
+        <label for="descripcionProducto">
+          Descripción del producto
+        </label>
+
+        <textarea
+          id="descripcionProducto"
+          [(ngModel)]="nuevoProducto.descripcion"
+          placeholder="Ej: Cuaderno universitario de 100 hojas"
+          rows="3"
+        ></textarea>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="fotoProducto">
+          Foto del producto
+        </label>
+
+        <input
+          id="fotoProducto"
+          type="text"
+          [(ngModel)]="nuevoProducto.fotoUrl"
+          placeholder="Pega aquí la URL de la imagen"
+        >
+
+        <small class="form-help">
+          Puedes pegar el enlace de una imagen alojada en internet.
+        </small>
+
+      </div>
+
+
+      <div
+        class="photo-preview"
+        *ngIf="nuevoProducto.fotoUrl"
+      >
+
+        <img
+          [src]="nuevoProducto.fotoUrl"
+          [alt]="nuevoProducto.nombre || 'Vista previa del producto'"
+        >
+
+      </div>
+
 
       <div class="form-row">
 
@@ -348,7 +398,7 @@
           <input
             id="precioProducto"
             type="number"
-            min="1"
+            min="0"
             [(ngModel)]="nuevoProducto.precio"
             placeholder="Ej: 15000"
           >
@@ -377,7 +427,6 @@
     </div>
 
 
-
     <div class="product-modal-footer">
 
       <button
@@ -388,34 +437,23 @@
         Cancelar
       </button>
 
-
       <button
         class="save-product-button"
         type="button"
         (click)="guardarProducto()"
       >
-
         ✓
-
-        {{ modoEdicion
-          ? 'Guardar cambios'
-          : 'Guardar producto'
-        }}
-
+        {{ modoEdicion ? 'Guardar cambios' : 'Guardar producto' }}
       </button>
 
     </div>
-
 
   </div>
 
 </div>
 
 
-
-<!-- ================================
-     MODAL CONFIRMAR ELIMINACIÓN
-     ================================ -->
+<!-- MODAL ELIMINAR -->
 
 <div
   class="delete-overlay"
@@ -423,28 +461,18 @@
   (click)="cancelarEliminar()"
 >
 
-
   <div
     class="delete-modal"
     (click)="$event.stopPropagation()"
   >
 
-
-    <!-- ICONO -->
-
     <div class="delete-icon">
       🗑️
     </div>
 
-
-    <!-- TÍTULO -->
-
     <h2>
       Eliminar producto
     </h2>
-
-
-    <!-- MENSAJE -->
 
     <p>
       ¿Estás seguro de que deseas eliminar
@@ -457,9 +485,6 @@
       Esta acción eliminará el producto de la lista.
     </small>
 
-
-    <!-- BOTONES -->
-
     <div class="delete-actions">
 
       <button
@@ -470,7 +495,6 @@
         Cancelar
       </button>
 
-
       <button
         class="confirm-delete"
         type="button"
@@ -480,7 +504,6 @@
       </button>
 
     </div>
-
 
   </div>
 

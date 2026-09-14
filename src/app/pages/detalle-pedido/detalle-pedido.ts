@@ -1,11 +1,18 @@
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { Pedido, PedidoService } from '../../services/pedido';
+
+import {
+  Pedido,
+  PedidoService,
+  ComprobantePagoRequest,
+  ComprobantePagoResponse
+} from '../../services/pedido';
 
 @Component({
   selector: 'app-detalle-pedido',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './detalle-pedido.html',
   styleUrl: './detalle-pedido.css'
 })
@@ -15,16 +22,25 @@ export class DetallePedido {
 
   pedido: Pedido | undefined = undefined;
 
+  comprobante: ComprobantePagoResponse | null = null;
+
   decisionTomada: boolean = false;
 
   mostrarComprobante: boolean = false;
+
+  mostrarFormularioComprobante: boolean = false;
+
+  nombreArchivo: string = '';
+
+  rutaArchivo: string = '';
+
+  observacionComprobante: string = '';
 
   cargando: boolean = true;
 
   error: string = '';
 
   procesando: boolean = false;
-
 
   constructor(
     private route: ActivatedRoute,
@@ -74,7 +90,6 @@ export class DetallePedido {
     this.cargarPedido(id);
   }
 
-
   cargarPedido(id: number): void {
 
     console.log(
@@ -102,10 +117,6 @@ export class DetallePedido {
           this.decisionTomada =
             pedido.estado !== 'Pago en revisión';
 
-          this.cargando = false;
-
-          this.cdr.detectChanges();
-
           console.log(
             'Estado del pedido:',
             pedido.estado
@@ -115,6 +126,27 @@ export class DetallePedido {
             'Decisión tomada:',
             this.decisionTomada
           );
+
+          /*
+           * Si el pedido está pendiente de pago,
+           * todavía no debería tener comprobante.
+           */
+          if (pedido.estado === 'Pendiente de pago') {
+
+            this.comprobante = null;
+
+            this.cargando = false;
+
+            this.cdr.detectChanges();
+
+            return;
+          }
+
+          /*
+           * Para los demás estados, consultamos el comprobante
+           * registrado previamente en el backend.
+           */
+          this.cargarComprobante(id);
 
         },
 
@@ -130,6 +162,8 @@ export class DetallePedido {
 
           this.pedido = undefined;
 
+          this.comprobante = null;
+
           this.cargando = false;
 
           this.cdr.detectChanges();
@@ -140,6 +174,162 @@ export class DetallePedido {
 
   }
 
+  cargarComprobante(id: number): void {
+
+    console.log(
+      'Solicitando comprobante del pedido. ID:',
+      id
+    );
+
+    this.pedidoService
+      .obtenerComprobante(id)
+      .subscribe({
+
+        next: (comprobante: ComprobantePagoResponse) => {
+
+          console.log(
+            'Comprobante recibido desde el backend:',
+            comprobante
+          );
+
+          this.comprobante = comprobante;
+
+          this.cargando = false;
+
+          this.cdr.detectChanges();
+
+        },
+
+        error: (err: any) => {
+
+          console.warn(
+            'El pedido no tiene un comprobante disponible:',
+            err
+          );
+
+          /*
+           * No mostramos un error general porque el pedido
+           * puede existir correctamente aunque no tenga
+           * comprobante registrado.
+           */
+          this.comprobante = null;
+
+          this.cargando = false;
+
+          this.cdr.detectChanges();
+
+        }
+
+      });
+
+  }
+
+  abrirFormularioComprobante(): void {
+
+    this.error = '';
+
+    this.nombreArchivo = '';
+
+    this.rutaArchivo = '';
+
+    this.observacionComprobante = '';
+
+    this.mostrarFormularioComprobante = true;
+
+    this.cdr.detectChanges();
+
+  }
+
+  cerrarFormularioComprobante(): void {
+
+    this.mostrarFormularioComprobante = false;
+
+    this.cdr.detectChanges();
+
+  }
+
+  registrarComprobante(): void {
+
+    if (
+      !this.pedido ||
+      this.procesando
+    ) {
+      return;
+    }
+
+    if (
+      !this.nombreArchivo.trim() ||
+      !this.rutaArchivo.trim()
+    ) {
+
+      this.error =
+        'Debes ingresar el nombre y la ruta del comprobante.';
+
+      return;
+    }
+
+    const comprobanteRequest: ComprobantePagoRequest = {
+      nombreArchivo: this.nombreArchivo.trim(),
+      rutaArchivo: this.rutaArchivo.trim(),
+      observacion: this.observacionComprobante.trim()
+    };
+
+    const id = this.pedido.id;
+
+    this.procesando = true;
+
+    this.error = '';
+
+    console.log(
+      'Registrando comprobante para el pedido:',
+      id
+    );
+
+    this.pedidoService
+      .registrarComprobante(id, comprobanteRequest)
+      .subscribe({
+
+        next: (respuesta: ComprobantePagoResponse) => {
+
+          console.log(
+            'Comprobante registrado correctamente:',
+            respuesta
+          );
+
+          this.comprobante = respuesta;
+
+          this.procesando = false;
+
+          this.mostrarFormularioComprobante = false;
+
+          /*
+           * Recargamos el pedido y el comprobante para
+           * mantener sincronizada toda la información.
+           */
+          this.cargarPedido(id);
+
+        },
+
+        error: (err: any) => {
+
+          console.error(
+            'Error al registrar comprobante:',
+            err
+          );
+
+          this.procesando = false;
+
+          this.error =
+            err?.error?.message ||
+            'No fue posible registrar el comprobante.';
+
+          this.cdr.detectChanges();
+
+        }
+
+      });
+
+  }
 
   aprobarPedido(): void {
 
@@ -201,7 +391,6 @@ export class DetallePedido {
 
   }
 
-
   rechazarPedido(): void {
 
     if (
@@ -262,7 +451,6 @@ export class DetallePedido {
 
   }
 
-
   iniciarPreparacion(): void {
 
     this.ejecutarCambioEstado(
@@ -271,7 +459,6 @@ export class DetallePedido {
     );
 
   }
-
 
   marcarListoParaRetiro(): void {
 
@@ -282,7 +469,6 @@ export class DetallePedido {
 
   }
 
-
   marcarEnviado(): void {
 
     this.ejecutarCambioEstado(
@@ -292,7 +478,6 @@ export class DetallePedido {
 
   }
 
-
   finalizarPedido(): void {
 
     this.ejecutarCambioEstado(
@@ -301,7 +486,6 @@ export class DetallePedido {
     );
 
   }
-
 
   private ejecutarCambioEstado(
     accion:
@@ -342,8 +526,8 @@ export class DetallePedido {
         this.procesando = false;
 
         /*
-         * Volvemos a consultar el pedido para
-         * mostrar inmediatamente el nuevo estado.
+         * Al cambiar el estado, también volvemos a cargar
+         * el comprobante para que no desaparezca visualmente.
          */
         this.cargarPedido(id);
 
@@ -370,7 +554,6 @@ export class DetallePedido {
 
   }
 
-
   abrirComprobante(): void {
 
     this.mostrarComprobante = true;
@@ -378,7 +561,6 @@ export class DetallePedido {
     this.cdr.detectChanges();
 
   }
-
 
   cerrarComprobante(): void {
 
