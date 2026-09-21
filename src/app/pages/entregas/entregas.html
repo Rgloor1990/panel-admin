@@ -58,14 +58,20 @@
       *ngFor="let estado of estados"
       [value]="estado"
     >
-      {{ estado === 'Todos' ? 'Todos los estados' : estado }}
+      {{ estado === 'Todos'
+        ? 'Todos los estados'
+        : estado
+      }}
     </option>
 
   </select>
 
 
   <button
-    *ngIf="terminoBusqueda || filtroEstado !== 'Todos'"
+    *ngIf="
+      terminoBusqueda ||
+      filtroEstado !== 'Todos'
+    "
     class="clear-button"
     type="button"
     (click)="limpiarFiltros()"
@@ -85,14 +91,18 @@
   <div class="card-header">
 
     <div>
+
       <h2>
         Entregas
       </h2>
 
       <p>
-        {{ entregasFiltradas.length }} entregas encontradas
+        {{ entregasFiltradas.length }}
+        entregas encontradas
       </p>
+
     </div>
+
 
     <button
       class="refresh-button"
@@ -114,11 +124,13 @@
     class="loading-container"
     *ngIf="cargando"
   >
+
     <div class="loading-spinner"></div>
 
     <p>
       Cargando entregas...
     </p>
+
   </div>
 
 
@@ -128,12 +140,16 @@
 
   <div
     class="table-container"
-    *ngIf="!cargando && entregasFiltradas.length > 0"
+    *ngIf="
+      !cargando &&
+      entregasFiltradas.length > 0
+    "
   >
 
     <table>
 
       <thead>
+
         <tr>
 
           <th>
@@ -157,7 +173,7 @@
           </th>
 
           <th>
-            Responsable
+            Despacho
           </th>
 
           <th>
@@ -169,21 +185,26 @@
           </th>
 
         </tr>
+
       </thead>
 
 
       <tbody>
 
         <tr
-          *ngFor="let entrega of entregasFiltradas"
+          *ngFor="
+            let entrega of entregasFiltradas
+          "
         >
 
           <!-- PEDIDO -->
 
           <td>
+
             <strong class="order-number">
               #{{ entrega.pedido }}
             </strong>
+
           </td>
 
 
@@ -228,9 +249,11 @@
           <!-- MODALIDAD -->
 
           <td>
+
             <span class="delivery-type">
               {{ entrega.modalidadEntrega }}
             </span>
+
           </td>
 
 
@@ -241,17 +264,27 @@
           </td>
 
 
-          <!-- RESPONSABLE -->
+          <!-- DESPACHO -->
 
           <td>
 
             <span
               class="responsible"
               [class.pending-responsible]="
-                entrega.responsable === 'Pendiente'
+                entrega.despachoId === null
               "
             >
-              {{ entrega.responsable }}
+
+              {{
+                entrega.despachoId !== null
+                  ? (
+                      entrega.tipoDespacho === 'COURIER'
+                        ? 'Courier'
+                        : 'Voluntario'
+                    )
+                  : 'Pendiente'
+              }}
+
             </span>
 
           </td>
@@ -263,7 +296,11 @@
 
             <span
               class="status"
-              [ngClass]="obtenerClaseEstado(entrega.estado)"
+              [ngClass]="
+                obtenerClaseEstado(
+                  entrega.estado
+                )
+              "
             >
               {{ entrega.estado }}
             </span>
@@ -300,7 +337,10 @@
 
   <div
     class="no-results"
-    *ngIf="!cargando && entregasFiltradas.length === 0"
+    *ngIf="
+      !cargando &&
+      entregasFiltradas.length === 0
+    "
   >
 
     <div class="no-results-icon">
@@ -334,16 +374,22 @@
 
 <div
   class="modal-overlay"
-  *ngIf="mostrarGestion && entregaSeleccionada"
+  *ngIf="
+    mostrarGestion &&
+    entregaSeleccionada
+  "
 >
 
   <div class="modal">
 
-    <!-- ENCABEZADO DEL MODAL -->
+    <!-- ================================
+         ENCABEZADO
+         ================================ -->
 
     <div class="modal-header">
 
       <div>
+
         <h2>
           Gestionar entrega
         </h2>
@@ -351,7 +397,9 @@
         <p>
           Pedido #{{ entregaSeleccionada.pedido }}
         </p>
+
       </div>
+
 
       <button
         class="close-button"
@@ -364,7 +412,9 @@
     </div>
 
 
-    <!-- CUERPO DEL MODAL -->
+    <!-- ================================
+         CUERPO
+         ================================ -->
 
     <div class="modal-body">
 
@@ -376,107 +426,368 @@
       <div class="delivery-info">
 
         <div>
-          <span>Cliente</span>
+
+          <span>
+            Cliente
+          </span>
 
           <strong>
             {{ entregaSeleccionada.cliente }}
           </strong>
+
         </div>
 
 
         <div>
-          <span>Correo</span>
+
+          <span>
+            Correo
+          </span>
 
           <strong>
-            {{ entregaSeleccionada.correo || 'Sin correo' }}
+            {{
+              entregaSeleccionada.correo ||
+              'Sin correo'
+            }}
           </strong>
+
         </div>
 
 
         <div>
-          <span>Teléfono</span>
+
+          <span>
+            Teléfono
+          </span>
 
           <strong>
-            {{ entregaSeleccionada.telefono || 'Sin teléfono' }}
+            {{
+              entregaSeleccionada.telefono ||
+              'Sin teléfono'
+            }}
           </strong>
+
         </div>
 
 
         <div>
-          <span>Modalidad</span>
+
+          <span>
+            Modalidad
+          </span>
 
           <strong>
             {{ entregaSeleccionada.modalidadEntrega }}
           </strong>
+
         </div>
 
 
         <div class="full-width">
-          <span>Dirección</span>
+
+          <span>
+            Dirección
+          </span>
 
           <strong>
             {{ entregaSeleccionada.direccion }}
           </strong>
+
         </div>
 
 
         <div>
-          <span>Total</span>
+
+          <span>
+            Total
+          </span>
 
           <strong>
             ${{ entregaSeleccionada.total | number:'1.0-0' }}
           </strong>
+
         </div>
 
 
         <div>
-          <span>Estado actual</span>
+
+          <span>
+            Estado actual
+          </span>
 
           <strong>
             {{ entregaSeleccionada.estado }}
           </strong>
+
         </div>
 
       </div>
 
 
       <!-- ================================
-           RESPONSABLE
+           INFORMACIÓN DE DESPACHO
            ================================ -->
 
-      <label>
-        Responsable
-      </label>
-
-      <select
-        [(ngModel)]="entregaSeleccionada.responsable"
-        class="modal-select"
+      <div
+        class="actions-section"
+        *ngIf="
+          esPedidoDespacho(
+            entregaSeleccionada
+          )
+        "
       >
 
-        <option
-          *ngFor="let responsable of responsables"
-          [value]="responsable"
+        <h3>
+          Información de despacho
+        </h3>
+
+
+        <!-- CARGANDO -->
+
+        <div
+          *ngIf="cargandoDespacho"
+          class="loading-container"
         >
-          {{ responsable === 'Pendiente'
-            ? 'Pendiente de asignar'
-            : responsable
-          }}
-        </option>
 
-      </select>
+          <div class="loading-spinner"></div>
+
+          <p>
+            Consultando información de despacho...
+          </p>
+
+        </div>
 
 
-      <button
-        class="save-button responsible-button"
-        type="button"
-        (click)="guardarGestion()"
-      >
-        ✓ Guardar responsable
-      </button>
+        <!-- ================================
+             SIN DESPACHO Y EN PREPARACIÓN
+             ================================ -->
+
+        <div
+          *ngIf="
+            !cargandoDespacho &&
+            entregaSeleccionada.despachoId === null &&
+            entregaSeleccionada.estadoBackend === 'EN_PREPARACION'
+          "
+        >
+
+          <p class="actions-help">
+            Registra los datos del despacho del pedido.
+          </p>
+
+
+          <!-- TIPO -->
+
+          <label>
+            Tipo de despacho
+          </label>
+
+          <select
+            [(ngModel)]="
+              entregaSeleccionada.tipoDespacho
+            "
+            class="modal-select"
+            [disabled]="procesando"
+          >
+
+            <option value="COURIER">
+              Courier
+            </option>
+
+            <option value="VOLUNTARIO">
+              Voluntario
+            </option>
+
+          </select>
+
+
+          <!-- COURIER -->
+
+          <div
+            *ngIf="
+              entregaSeleccionada.tipoDespacho ===
+              'COURIER'
+            "
+          >
+
+            <label>
+              Empresa de transporte
+            </label>
+
+            <input
+              type="text"
+              class="modal-select"
+              [(ngModel)]="
+                entregaSeleccionada.empresaTransporte
+              "
+              placeholder="Ej: Chilexpress"
+              [disabled]="procesando"
+            >
+
+
+            <label>
+              Número de seguimiento
+            </label>
+
+            <input
+              type="text"
+              class="modal-select"
+              [(ngModel)]="
+                entregaSeleccionada.numeroSeguimiento
+              "
+              placeholder="Ej: 123456789"
+              [disabled]="procesando"
+            >
+
+          </div>
+
+
+          <!-- FECHA -->
+
+          <label>
+            Fecha de envío
+          </label>
+
+          <input
+            type="date"
+            class="modal-select"
+            [(ngModel)]="
+              entregaSeleccionada.fechaEnvio
+            "
+            [disabled]="procesando"
+          >
+
+        </div>
+
+
+        <!-- ================================
+             SIN DESPACHO Y OTRO ESTADO
+             ================================ -->
+
+        <div
+          *ngIf="
+            !cargandoDespacho &&
+            entregaSeleccionada.despachoId === null &&
+            entregaSeleccionada.estadoBackend !== 'EN_PREPARACION'
+          "
+        >
+
+          <p class="actions-help">
+            Este pedido no tiene un despacho registrado.
+          </p>
+
+        </div>
+
+
+        <!-- ================================
+             DESPACHO REGISTRADO
+             ================================ -->
+
+        <div
+          *ngIf="
+            !cargandoDespacho &&
+            entregaSeleccionada.despachoId !== null
+          "
+        >
+
+          <p class="actions-help">
+            Información registrada en el backend.
+          </p>
+
+
+          <div class="delivery-info">
+
+            <!-- TIPO -->
+
+            <div>
+
+              <span>
+                Tipo
+              </span>
+
+              <strong>
+                {{
+                  entregaSeleccionada.tipoDespacho ===
+                  'COURIER'
+                    ? 'Courier'
+                    : 'Voluntario'
+                }}
+              </strong>
+
+            </div>
+
+
+            <!-- EMPRESA -->
+
+            <div
+              *ngIf="
+                entregaSeleccionada.tipoDespacho ===
+                'COURIER'
+              "
+            >
+
+              <span>
+                Empresa
+              </span>
+
+              <strong>
+                {{
+                  entregaSeleccionada.empresaTransporte ||
+                  'Sin empresa'
+                }}
+              </strong>
+
+            </div>
+
+
+            <!-- SEGUIMIENTO -->
+
+            <div
+              *ngIf="
+                entregaSeleccionada.tipoDespacho ===
+                'COURIER'
+              "
+            >
+
+              <span>
+                Seguimiento
+              </span>
+
+              <strong>
+                {{
+                  entregaSeleccionada.numeroSeguimiento ||
+                  'Sin seguimiento'
+                }}
+              </strong>
+
+            </div>
+
+
+            <!-- FECHA -->
+
+            <div>
+
+              <span>
+                Fecha de envío
+              </span>
+
+              <strong>
+                {{
+                  entregaSeleccionada.fechaEnvio ||
+                  'Sin fecha'
+                }}
+              </strong>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
 
 
       <!-- ================================
-           ACCIONES DEL BACKEND
+           ACCIONES DEL PEDIDO
            ================================ -->
 
       <div class="actions-section">
@@ -516,6 +827,22 @@
         </button>
 
 
+        <!-- REGISTRAR DESPACHO -->
+
+        <button
+          *ngIf="puedeRegistrarDespacho()"
+          class="action-button transit-button"
+          type="button"
+          (click)="registrarDespacho()"
+          [disabled]="
+            procesando ||
+            cargandoDespacho
+          "
+        >
+          🚚 Registrar despacho
+        </button>
+
+
         <!-- ENVIAR -->
 
         <button
@@ -549,6 +876,7 @@
           *ngIf="
             !puedeIniciarPreparacion() &&
             !puedeMarcarListo() &&
+            !puedeRegistrarDespacho() &&
             !puedeMarcarEnviado() &&
             !puedeFinalizar()
           "
@@ -570,6 +898,7 @@
         ✓ {{ mensajeExito }}
       </div>
 
+
       <div
         class="modal-message error-message"
         *ngIf="mensajeError"
@@ -580,7 +909,9 @@
     </div>
 
 
-    <!-- PIE DEL MODAL -->
+    <!-- ================================
+         PIE DEL MODAL
+         ================================ -->
 
     <div class="modal-footer">
 

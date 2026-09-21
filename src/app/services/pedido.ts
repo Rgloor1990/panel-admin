@@ -24,6 +24,24 @@ export interface Pedido {
   productos: Producto[];
 }
 
+export interface Despacho {
+  id: number;
+  pedidoId: number;
+  codigoPedido: string;
+  tipo: 'VOLUNTARIO' | 'COURIER';
+  empresaTransporte: string | null;
+  numeroSeguimiento: string | null;
+  fechaEnvio: string;
+}
+
+export interface DespachoRequest {
+  pedidoId: number;
+  tipo: 'VOLUNTARIO' | 'COURIER';
+  empresaTransporte?: string;
+  numeroSeguimiento?: string;
+  fechaEnvio: string;
+}
+
 interface PedidoBackend {
   id: number;
   codigo: string;
@@ -74,6 +92,7 @@ export interface ComprobantePagoResponse {
 export class PedidoService {
 
   private apiUrl = '/api/pedidos';
+  private despachoUrl = '/api/despachos';
 
   constructor(
     private http: HttpClient
@@ -190,6 +209,33 @@ export class PedidoService {
     return this.http.post(
       `${this.apiUrl}/${id}/finalizar`,
       {}
+    );
+  }
+
+  obtenerDespachoPorPedido(
+    pedidoId: number
+  ): Observable<Despacho> {
+    return this.http.get<Despacho>(
+      `${this.despachoUrl}/pedido/${pedidoId}`
+    );
+  }
+
+  crearDespacho(
+    despacho: DespachoRequest
+  ): Observable<Despacho> {
+    return this.http.post<Despacho>(
+      this.despachoUrl,
+      despacho
+    );
+  }
+
+  actualizarDespacho(
+    id: number,
+    despacho: DespachoRequest
+  ): Observable<Despacho> {
+    return this.http.put<Despacho>(
+      `${this.despachoUrl}/${id}`,
+      despacho
     );
   }
 
